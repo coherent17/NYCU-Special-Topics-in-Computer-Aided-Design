@@ -8,6 +8,7 @@ using namespace std;
 
 class QM{
     private:
+        // For Quine-McCluskey
         int Num_Vars;
         vector<int>     ON_Set_Decimal;
         vector<int>     DC_Set_Decimal;
@@ -16,13 +17,16 @@ class QM{
         vector<string>  Implicants;
         vector<string>  Prime_Implicants;
 
+        // For Petrick's Method
+        vector<vector<string>> Product_Of_Sum;
+
 
     public:
         // Constructor & Destructor
         QM();
         ~QM();
 
-        // Parse the input file
+        // Input & Output
         void Parser(ifstream &);
         void Dump(ofstream &);
 
@@ -30,10 +34,14 @@ class QM{
         void Run();
 
     private:
-        bool Has_One_Bit_Different(const string &, const string &);
+        // For Quine-McCluskey
+        inline bool Has_One_Bit_Different(const string &, const string &);
         string Merge_Implicant(const string &, const string &);
         void Find_Prime_Implicants();
 
+        // For Petrick's Method
+        inline bool Is_Covered(const string &, const string &);
+        void Build_POS();
 };
 
 #endif

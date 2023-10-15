@@ -69,19 +69,11 @@ void QM::Parser(ifstream &fin){
         for(size_t i = 0; i < Implicants.size(); i++){
             cout << "\t" << Implicants[i] << endl;
         }
-        cout << "########################################################" << endl;
+        cout << "########################################################" << endl << endl;
     }
 }
 
 void QM::Dump(ofstream &fout){
-
-}
-
-void QM::Run(){
-    while(Implicants.size() != 0){
-        Find_Prime_Implicants();
-    }
-
     // sort the prime implicants
     auto Prime_Implicants_cmp = [](const string &Prime_Implicant1, const string &Prime_Implicant2){
         string order = "10-";
@@ -92,11 +84,31 @@ void QM::Run(){
 	    }
 	    return false;
     };
-    sort(Prime_Implicants.begin(), Prime_Implicants.end(), Prime_Implicants_cmp);
 
-    for(const auto &Prime_Implicant : Prime_Implicants){
-        cout << Prime_Implicant << endl;
+    vector<string> Prime_Implicants_Copy = Prime_Implicants;
+    sort(Prime_Implicants_Copy.begin(), Prime_Implicants_Copy.end(), Prime_Implicants_cmp);
+
+    cout << ".p " << Prime_Implicants.size() << endl;
+    for(size_t i = 0; i < Prime_Implicants_Copy.size(); i++){
+        string Alphabet_Literal = "";
+        for(size_t j = 0; j < Prime_Implicants_Copy[i].length(); j++){
+            if(Prime_Implicants_Copy[i][j] == '-') continue;
+            if(Prime_Implicants_Copy[i][j] == '0') Alphabet_Literal+= Alphabets_Negative[j];
+            else if(Prime_Implicants_Copy[i][j] == '1') Alphabet_Literal+= Alphabets_Positive[j];
+        }
+        cout << Alphabet_Literal << endl;
+        if(i == 14) break;
     }
+}
+
+void QM::Run(){
+    cout << "####################### Quine McCluskey #####################" << endl;
+    while(Implicants.size() != 0){
+        Find_Prime_Implicants();
+    }
+    cout << "#############################################################" << endl << endl;
+    // Petrick's Method to find the min-cover
+    Build_POS();
 }
 
 bool QM::Has_One_Bit_Different(const string &Implicant1, const string &Implicant2){
@@ -131,9 +143,6 @@ void QM::Find_Prime_Implicants(){
         for(size_t j = i + 1; j < Implicants.size(); j++){
             string Implicant1 = Implicants[i];
             string Implicant2 = Implicants[j];
-            int Implicant1_1_count = count(Implicant1.begin(), Implicant1.end(), '1');
-            int Implicant2_1_count = count(Implicant2.begin(), Implicant2.end(), '1');
-            if(Implicant2_1_count - Implicant1_1_count > 1) break;
             if(Has_One_Bit_Different(Implicant1, Implicant2)){
                 if(PRINT_QM_MERGE_PROCESS){
                     cout << Implicant1 << " " << Implicant2 << " " << Merge_Implicant(Implicant1, Implicant2) << endl;
@@ -158,4 +167,42 @@ void QM::Find_Prime_Implicants(){
         Implicants.emplace_back(Reduced_Implicant);
     }
     cout << endl;
+}
+
+bool QM::Is_Covered(const string &ON_Binary, const string &Prime_Implicant){
+    assert(ON_Binary.length() == Prime_Implicant.length());
+    for(size_t i = 0; i < ON_Binary.size(); i++){
+        if(Prime_Implicant[i] == '-') continue;
+        if(Prime_Implicant[i] != ON_Binary[i]){
+            return false;
+        }
+    }
+    return true;    // The Prime Implicant covers the On Set
+}
+
+void QM::Build_POS(){
+    // Check Prime Implicants contains which ON Set
+    for(const auto &on_set_binary : ON_Set_Binary){
+        vector<string> Sum_Literal;
+        for(const auto &prime_implicant : Prime_Implicants){
+            if(Is_Covered(on_set_binary, prime_implicant)){
+                Sum_Literal.emplace_back(prime_implicant);
+            }
+        }
+        Product_Of_Sum.emplace_back(Sum_Literal);
+    }
+
+    //Dump POS
+    if(PRINT_POS){
+        cout << "Product of Sum (POS):" << endl;
+        for(size_t i = 0; i < Product_Of_Sum.size(); i++){
+            cout << "\t(";
+            for(size_t j = 0; j < Product_Of_Sum[i].size(); j++){
+                cout << Product_Of_Sum[i][j];
+                if(j != Product_Of_Sum[i].size() - 1) cout << " + ";
+            }
+            cout << ")" << endl;
+        }
+        cout << endl;
+    }
 }
