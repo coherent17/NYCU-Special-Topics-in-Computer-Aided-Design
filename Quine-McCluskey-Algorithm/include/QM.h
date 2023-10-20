@@ -18,11 +18,12 @@ class QM{
         vector<string>  Prime_Implicants;
 
         // For Petrick's Method
-        vector<string>  Essential_Prime_Implicants;
-        vector<string>  Remain_Prime_Implicants;
-        vector<int>     Uncover_ON_Set_Decimal;
-        vector<string>  Uncover_ON_Set_Binary;
-
+        size_t Min_Literal;
+        vector<string> Essential_Prime_Implicants;
+        vector<string> Candidate_Prime_Implicants;
+        vector<string> Min_Cover_Prime_Implicants;
+        vector<int> Uncover_ON_Set_Decimal;
+        vector<string> Uncover_ON_Set_Binary;
         vector<vector<string>> Product_Of_Sum;
         vector<vector<string>> Sum_Of_Product;
 
@@ -31,7 +32,7 @@ class QM{
         QM();
         ~QM();
 
-        // Input & Output
+        // I/O
         void Parser(ifstream &);
         void Dump(ofstream &);
 
@@ -40,16 +41,18 @@ class QM{
 
     private:
         // For Quine-McCluskey
-        inline bool Has_One_Bit_Different(const string &, const string &);
-        string Merge_Implicant(const string &, const string &);
+        inline bool Has_One_Bit_Different(const string &Implicant1, const string &Implicant2);
+        string Merge_Implicant(const string &Implicant1, const string &Implicant2);
         void Find_Prime_Implicants();
 
         // For Petrick's Method
-        inline bool Is_Covered(const string &, const string &);
-        void Find_Essential_Prime_Implicants();
-        void Build_POS();
-        void Build_SOP();
-        void Multiply_Terms(vector<string> &, size_t, int &);
+        inline bool Is_Covered(const string &ON_Binary, const string &Prime_Implicant);
+        void Classify_Prime_Implicats();
+        void Build_Product_Of_Sum();
+        void Build_Sum_Of_Product();
+        void Multiply_Terms(vector<string> &visited_terms, size_t visited_index, size_t &Current_Min_Term_Count);
+        void Find_Minimum_Cover();
+        
 };
 
 #endif

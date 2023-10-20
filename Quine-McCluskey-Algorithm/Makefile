@@ -1,6 +1,6 @@
 # ompiler & Linker settings
 CC = g++
-CFLAGS = -g -Wall -I./include
+CFLAGS = -g -Wall -std=c++11 -DNDEBUG -O3 -I./include
 
 # Valgrind for memory issue
 CHECKCC = valgrind
@@ -35,26 +35,24 @@ gen_table:
 check:
 	$(CHECKCC) $(CHECKFLAGS) ./$(TARGET) input/input3.txt output/output3.txt
 
-s1:
-	./$(TARGET) testcase1/sample1.txt
 
 do1:
-	./$(TARGET) testcase2/input1.txt
+	./$(TARGET) testcase2/input1.txt testcase2/ouput1.txt
 
 do2:
-	./$(TARGET) testcase2/input2.txt
+	./$(TARGET) testcase2/input2.txt testcase2/ouput2.txt
 
 do3:
-	./$(TARGET) testcase2/input3.txt
+	./$(TARGET) testcase2/input3.txt testcase2/ouput3.txt
 
 do4:
-	./$(TARGET) testcase2/input4.txt
+	./$(TARGET) testcase2/input4.txt testcase2/ouput4.txt
 
 do5:
-	./$(TARGET) testcase2/input5.txt
+	./$(TARGET) testcase2/input5.txt testcase2/ouput5.txt
 
 do6:
-	./$(TARGET) testcase2/input6.txt
+	./$(TARGET) testcase2/input6.txt testcase2/ouput6.txt
 
 
 clean:

@@ -10,6 +10,6 @@ int main(int argc, char *argv[]){
     qm->Parser(fin);
     qm->Run();
     qm->Dump(fout);
-
+	delete qm;
 	return 0;
 }
