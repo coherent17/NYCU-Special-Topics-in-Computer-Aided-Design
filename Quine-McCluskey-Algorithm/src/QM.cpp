@@ -101,7 +101,7 @@ void QM::Dump(ofstream &fout){
     }
     cout << endl;
 
-    // dump prime implicant that has min cover
+    //dump prime implicant that has min cover
     int Min_Literal = INT_MAX;
     size_t Min_Index = -1;
     for(size_t i = 0; i < Sum_Of_Product.size(); i++){
@@ -116,14 +116,28 @@ void QM::Dump(ofstream &fout){
             Min_Index = i;
         }
     }
-    cout << ".mc " << Sum_Of_Product[Min_Index].size() << endl;
-    sort(Sum_Of_Product[Min_Index].begin(), Sum_Of_Product[Min_Index].end(), Prime_Implicants_cmp);
+
+    for(size_t i = 0; i < Essential_Prime_Implicants.size(); i++){
+        for(size_t j = 0; j < Essential_Prime_Implicants[i].length(); j++){
+            if(Essential_Prime_Implicants[i][j] != '-') Min_Literal++;
+        }
+    }
+
+    vector<string> Min_Cover_Prime_Implicants;
+    for(size_t i = 0; i < Essential_Prime_Implicants.size(); i++){
+        Min_Cover_Prime_Implicants.emplace_back(Essential_Prime_Implicants[i]);
+    }
     for(size_t i = 0; i < Sum_Of_Product[Min_Index].size(); i++){
+        Min_Cover_Prime_Implicants.emplace_back(Sum_Of_Product[Min_Index][i]);
+    }
+    cout << ".mc " << Min_Cover_Prime_Implicants.size() << endl;
+    sort(Min_Cover_Prime_Implicants.begin(), Min_Cover_Prime_Implicants.end(), Prime_Implicants_cmp);
+    for(size_t i = 0; i < Min_Cover_Prime_Implicants.size(); i++){
         string Alphabet_Literal = "";
-        for(size_t j = 0; j < Sum_Of_Product[Min_Index][i].length(); j++){
-            if(Sum_Of_Product[Min_Index][i][j] == '-') continue;
-            if(Sum_Of_Product[Min_Index][i][j] == '0') Alphabet_Literal+= Alphabets_Negative[j];
-            else if(Sum_Of_Product[Min_Index][i][j] == '1') Alphabet_Literal+= Alphabets_Positive[j];
+        for(size_t j = 0; j < Min_Cover_Prime_Implicants[i].length(); j++){
+            if(Min_Cover_Prime_Implicants[i][j] == '-') continue;
+            if(Min_Cover_Prime_Implicants[i][j] == '0') Alphabet_Literal+= Alphabets_Negative[j];
+            else if(Min_Cover_Prime_Implicants[i][j] == '1') Alphabet_Literal+= Alphabets_Positive[j];
         }
         cout << Alphabet_Literal << endl;
     }
@@ -131,13 +145,14 @@ void QM::Dump(ofstream &fout){
 }
 
 void QM::Run(){
-    cout << "####################### Quine McCluskey #####################" << endl;
     while(!Implicants.empty()){
         Find_Prime_Implicants();
     }
-    cout << "#############################################################" << endl << endl;
     // Petrick's Method to find the min-cover
+
     // should find essential implicant first & further reduced the row
+    Find_Essential_Prime_Implicants();
+
     Build_POS();
     Build_SOP();
 
@@ -212,11 +227,60 @@ bool QM::Is_Covered(const string &ON_Binary, const string &Prime_Implicant){
     return true;    // The Prime Implicant covers the On Set
 }
 
+
+void QM::Find_Essential_Prime_Implicants(){
+    vector<int> Cover_Count(ON_Set_Binary.size(), 0);
+    vector<vector<string>> Cover_Prime_Implicants(ON_Set_Binary.size());
+
+    for(size_t i = 0; i < ON_Set_Binary.size(); i++){
+        for(size_t j = 0; j < Prime_Implicants.size(); j++){
+            if(Is_Covered(ON_Set_Binary[i], Prime_Implicants[j])){
+                Cover_Prime_Implicants[i].emplace_back(Prime_Implicants[j]);
+                Cover_Count[i]++;
+            }
+        }
+    }
+    
+    for(size_t i = 0; i < Cover_Count.size(); i++){
+        if(Cover_Count[i] == 1){
+            Essential_Prime_Implicants.emplace_back(Cover_Prime_Implicants[i][0]);
+        }
+    }
+    sort(Essential_Prime_Implicants.begin(), Essential_Prime_Implicants.end());
+    Essential_Prime_Implicants.erase(unique(Essential_Prime_Implicants.begin(), Essential_Prime_Implicants.end()), Essential_Prime_Implicants.end());
+
+    for(size_t i = 0; i < ON_Set_Binary.size(); i++){
+        for(size_t j = 0; j < Essential_Prime_Implicants.size(); j++){
+            if(Is_Covered(ON_Set_Binary[i], Essential_Prime_Implicants[j])){
+                Cover_Count[i] = 0;
+            }
+        }
+    }
+    for(size_t i = 0; i < Cover_Count.size(); i++){
+        if(Cover_Count[i] != 0){
+            Uncover_ON_Set_Decimal.emplace_back(ON_Set_Decimal[i]);
+            Uncover_ON_Set_Binary.emplace_back(ON_Set_Binary[i]);
+        }
+    }
+
+    vector<bool> Is_Remain_Prime_Implicants(Prime_Implicants.size(), true);
+    for(size_t i = 0; i < Prime_Implicants.size(); i++){
+        for(size_t j = 0; j < Uncover_ON_Set_Binary.size(); j++){
+            if(Is_Covered(Uncover_ON_Set_Binary[j], Prime_Implicants[i])){
+                Remain_Prime_Implicants.emplace_back(Prime_Implicants[i]);
+                cout << Prime_Implicants[i] <<  " ";
+                break;
+            }
+        }
+    }
+    cout << endl;
+}
+
 void QM::Build_POS(){
     // Check Prime Implicants contains which ON Set
-    for(const auto &on_set_binary : ON_Set_Binary){
+    for(const auto &on_set_binary :Uncover_ON_Set_Binary){
         vector<string> Sum_Literal;
-        for(const auto &prime_implicant : Prime_Implicants){
+        for(const auto &prime_implicant : Remain_Prime_Implicants){
             if(Is_Covered(on_set_binary, prime_implicant)){
                 Sum_Literal.emplace_back(prime_implicant);
             }

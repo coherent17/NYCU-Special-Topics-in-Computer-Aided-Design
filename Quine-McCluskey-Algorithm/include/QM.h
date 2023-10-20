@@ -18,6 +18,11 @@ class QM{
         vector<string>  Prime_Implicants;
 
         // For Petrick's Method
+        vector<string>  Essential_Prime_Implicants;
+        vector<string>  Remain_Prime_Implicants;
+        vector<int>     Uncover_ON_Set_Decimal;
+        vector<string>  Uncover_ON_Set_Binary;
+
         vector<vector<string>> Product_Of_Sum;
         vector<vector<string>> Sum_Of_Product;
 
@@ -41,6 +46,7 @@ class QM{
 
         // For Petrick's Method
         inline bool Is_Covered(const string &, const string &);
+        void Find_Essential_Prime_Implicants();
         void Build_POS();
         void Build_SOP();
         void Multiply_Terms(vector<string> &, size_t, int &);
