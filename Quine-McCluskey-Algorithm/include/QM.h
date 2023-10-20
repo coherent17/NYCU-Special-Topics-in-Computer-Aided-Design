@@ -19,7 +19,7 @@ class QM{
 
         // For Petrick's Method
         vector<vector<string>> Product_Of_Sum;
-
+        vector<vector<string>> Sum_Of_Product;
 
     public:
         // Constructor & Destructor
@@ -42,6 +42,8 @@ class QM{
         // For Petrick's Method
         inline bool Is_Covered(const string &, const string &);
         void Build_POS();
+        void Build_SOP();
+        void Multiply_Terms(vector<string> &, size_t, int &);
 };
 
 #endif

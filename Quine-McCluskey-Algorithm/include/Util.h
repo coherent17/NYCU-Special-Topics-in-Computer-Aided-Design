@@ -7,6 +7,7 @@ using namespace std;
 #define PRINT_PARSER_SUMMARY 1
 #define PRINT_QM_MERGE_PROCESS 1
 #define PRINT_POS 1
+#define PRINT_SOP 0
 
 // For dumping result in alphabetically order
 const vector<string> Alphabets_Positive = {"A", "B", "C", "D", "E", "F", "G", "H"};

@@ -11,6 +11,5 @@ int main(int argc, char *argv[]){
     qm->Run();
     qm->Dump(fout);
 
-    
 	return 0;
 }

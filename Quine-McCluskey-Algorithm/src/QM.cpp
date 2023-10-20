@@ -74,7 +74,7 @@ void QM::Parser(ifstream &fin){
 }
 
 void QM::Dump(ofstream &fout){
-    // sort the prime implicants
+    // dump prime implicant
     auto Prime_Implicants_cmp = [](const string &Prime_Implicant1, const string &Prime_Implicant2){
         string order = "10-";
         for(size_t i = 0; i < Prime_Implicant1.length(); i++){
@@ -99,16 +99,47 @@ void QM::Dump(ofstream &fout){
         cout << Alphabet_Literal << endl;
         if(i == 14) break;
     }
+    cout << endl;
+
+    // dump prime implicant that has min cover
+    int Min_Literal = INT_MAX;
+    size_t Min_Index = -1;
+    for(size_t i = 0; i < Sum_Of_Product.size(); i++){
+        int Literal_Count = 0;
+        for(size_t j = 0; j < Sum_Of_Product[i].size(); j++){
+            for(size_t k = 0; k < Sum_Of_Product[i][j].size(); k++){
+                if(Sum_Of_Product[i][j][k] != '-') Literal_Count++;
+            }
+        }
+        if(Literal_Count < Min_Literal){
+            Min_Literal = Literal_Count;
+            Min_Index = i;
+        }
+    }
+    cout << ".mc " << Sum_Of_Product[Min_Index].size() << endl;
+    sort(Sum_Of_Product[Min_Index].begin(), Sum_Of_Product[Min_Index].end(), Prime_Implicants_cmp);
+    for(size_t i = 0; i < Sum_Of_Product[Min_Index].size(); i++){
+        string Alphabet_Literal = "";
+        for(size_t j = 0; j < Sum_Of_Product[Min_Index][i].length(); j++){
+            if(Sum_Of_Product[Min_Index][i][j] == '-') continue;
+            if(Sum_Of_Product[Min_Index][i][j] == '0') Alphabet_Literal+= Alphabets_Negative[j];
+            else if(Sum_Of_Product[Min_Index][i][j] == '1') Alphabet_Literal+= Alphabets_Positive[j];
+        }
+        cout << Alphabet_Literal << endl;
+    }
+    cout << "literal=" << Min_Literal << endl;
 }
 
 void QM::Run(){
     cout << "####################### Quine McCluskey #####################" << endl;
-    while(Implicants.size() != 0){
+    while(!Implicants.empty()){
         Find_Prime_Implicants();
     }
     cout << "#############################################################" << endl << endl;
     // Petrick's Method to find the min-cover
     Build_POS();
+    Build_SOP();
+
 }
 
 bool QM::Has_One_Bit_Different(const string &Implicant1, const string &Implicant2){
@@ -204,5 +235,57 @@ void QM::Build_POS(){
             cout << ")" << endl;
         }
         cout << endl;
+    }
+}
+
+void QM::Build_SOP(){
+    vector<string> visited_terms;
+    int Current_Min_Term_Count = INT_MAX;
+    Multiply_Terms(visited_terms, 0, Current_Min_Term_Count);
+    // Sort the implicants by number of 1
+    auto SOP_cmp = [](const vector<string> &Sum_Of_Product_1, const vector<string> &Sum_Of_Product_2){
+        return Sum_Of_Product_1.size() < Sum_Of_Product_2.size();
+    };
+    sort(Sum_Of_Product.begin(), Sum_Of_Product.end(), SOP_cmp);
+    if(PRINT_SOP){
+        cout << "Sum of Product (SOP):" << endl;
+        for(const vector<string> &Product_Term : Sum_Of_Product){
+            cout << "\t(";
+            for(const string &Term : Product_Term){
+                if(Term != *Product_Term.begin()){
+                    cout << " * ";
+                }
+                cout << Term;
+            }
+            cout << ")" << endl;
+        }
+    }
+}
+
+void QM::Multiply_Terms(vector<string> &visited_terms, size_t visited_index, int &Current_Min_Term_Count){
+
+    // Recursion terminate condition
+    if(visited_index == Product_Of_Sum.size()){
+        vector<string> visited_terms_copy(visited_terms);
+        sort(visited_terms_copy.begin(), visited_terms_copy.end());
+        visited_terms_copy.erase(unique(visited_terms_copy.begin(), visited_terms_copy.end()), visited_terms_copy.end());
+        if(visited_terms_copy.size() < Current_Min_Term_Count) Current_Min_Term_Count = visited_terms_copy.size();
+        Sum_Of_Product.emplace_back(visited_terms_copy);
+        return;
+    }
+
+    // Choose the next terms in POS
+    for(size_t i = 0; i < Product_Of_Sum[visited_index].size(); i++){
+        vector<string> visited_terms_copy(visited_terms);
+        sort(visited_terms_copy.begin(), visited_terms_copy.end());
+        visited_terms_copy.erase(unique(visited_terms_copy.begin(), visited_terms_copy.end()), visited_terms_copy.end());
+        if(Current_Min_Term_Count < visited_terms_copy.size()) break;
+        string Prime_Implicant = Product_Of_Sum[visited_index][i];
+        visited_terms.emplace_back(Prime_Implicant);
+        // Move to the next term in POS
+        Multiply_Terms(visited_terms, visited_index + 1, Current_Min_Term_Count);
+
+        // Go back and choose another terms in POS
+        visited_terms.pop_back();
     }
 }

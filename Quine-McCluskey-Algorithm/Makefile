@@ -36,25 +36,26 @@ check:
 	$(CHECKCC) $(CHECKFLAGS) ./$(TARGET) input/input3.txt output/output3.txt
 
 s1:
-	./$(TARGET) testcase/sample1.txt
+	./$(TARGET) testcase1/sample1.txt
 
 do1:
-	./$(TARGET) testcase/input1.txt
+	./$(TARGET) testcase2/input1.txt
 
 do2:
-	./$(TARGET) testcase/input2.txt
+	./$(TARGET) testcase2/input2.txt
 
 do3:
-	./$(TARGET) testcase/input3.txt
+	./$(TARGET) testcase2/input3.txt
 
 do4:
-	./$(TARGET) testcase/input4.txt
+	./$(TARGET) testcase2/input4.txt
 
 do5:
-	./$(TARGET) testcase/input5.txt
+	./$(TARGET) testcase2/input5.txt
 
 do6:
-	./$(TARGET) testcase/input6.txt
+	./$(TARGET) testcase2/input6.txt
+
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET) output
