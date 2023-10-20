@@ -137,6 +137,7 @@ void QM::Run(){
     }
     cout << "#############################################################" << endl << endl;
     // Petrick's Method to find the min-cover
+    // should find essential implicant first & further reduced the row
     Build_POS();
     Build_SOP();
 
