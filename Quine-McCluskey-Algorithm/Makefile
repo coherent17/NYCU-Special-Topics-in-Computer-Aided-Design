@@ -69,5 +69,30 @@ j6:
 	./$(TARGET) Jimmy_Testcase/input6.txt Jimmy_Testcase/my_output6.txt
 	diff Jimmy_Testcase/my_output6.txt Jimmy_Testcase/output6.txt
 
+# Zip testcase
+z1:
+	./$(TARGET) Zip_Testcase/input1.txt Zip_Testcase/my_output1.txt
+	diff -w Zip_Testcase/my_output1.txt Zip_Testcase/output1.txt
+
+z2:
+	./$(TARGET) Zip_Testcase/input2.txt Zip_Testcase/my_output2.txt
+	diff -w Zip_Testcase/my_output2.txt Zip_Testcase/output2.txt
+
+z3:
+	./$(TARGET) Zip_Testcase/input3.txt Zip_Testcase/my_output3.txt
+	diff -w Zip_Testcase/my_output3.txt Zip_Testcase/output3.txt
+
+z4:
+	./$(TARGET) Zip_Testcase/input4.txt Zip_Testcase/my_output4.txt
+	diff -w Zip_Testcase/my_output4.txt Zip_Testcase/output4.txt
+
+z5:
+	./$(TARGET) Zip_Testcase/input5.txt Zip_Testcase/my_output5.txt
+	diff -w Zip_Testcase/my_output5.txt Zip_Testcase/output5.txt
+
+z6:
+	./$(TARGET) Zip_Testcase/input6.txt Zip_Testcase/my_output6.txt
+	diff -w Zip_Testcase/my_output6.txt Zip_Testcase/output6.txt
+
 clean:
-	rm -rf $(OBJDIR) $(TARGET) Sample_Testcase/my* Jimmy_Testcase/my*
+	rm -rf $(OBJDIR) $(TARGET) Sample_Testcase/my* Jimmy_Testcase/my* Zip_Testcase/my*
