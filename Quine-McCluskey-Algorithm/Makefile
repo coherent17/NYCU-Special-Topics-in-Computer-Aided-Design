@@ -16,7 +16,7 @@ SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
 
 # Name of the executable
-TARGET = main
+TARGET = 0811562.o
 
 all: $(TARGET)
 
@@ -24,7 +24,7 @@ $(OBJDIR):
 	mkdir $(OBJDIR)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) main.cpp $^ -o $@
+	$(CC) $(CFLAGS) 0811562.cpp $^ -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
