@@ -14,7 +14,7 @@
 using namespace std;
 
 // For dumping result in alphabetically order
-#define DUMP_ALPHABETS 1 // 0-> Dump binary
+#define DUMP_ALPHABETS 0 // 0-> Dump binary
 const vector<string> Alphabets_Positive = {"A", "B", "C", "D", "E", "F", "G", "H"};
 const vector<string> Alphabets_Negative = {"A'", "B'", "C'", "D'", "E'", "F'", "G'", "H'"};
 

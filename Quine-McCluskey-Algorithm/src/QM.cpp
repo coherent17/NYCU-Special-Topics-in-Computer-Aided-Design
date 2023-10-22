@@ -421,7 +421,6 @@ void QM::Multiply_Terms(vector<string> &visited_terms, size_t visited_index){
 
 void QM::Find_Minimum_Cover(){
     size_t Min_Index = -1;
-    cout << Min_Cover << endl;
     for(size_t i = 0; i < Sum_Of_Product.size(); i++){
         size_t Literal_Count = 0;
         for(size_t j = 0; j < Sum_Of_Product[i].size(); j++){

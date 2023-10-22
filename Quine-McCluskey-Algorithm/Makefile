@@ -35,6 +35,7 @@ gen_table:
 check:
 	$(CHECKCC) $(CHECKFLAGS) ./$(TARGET) input/input3.txt output/output3.txt
 
+# Sample testcase
 s1:
 	./$(TARGET) Sample_Testcase/input1.txt Sample_Testcase/my_output1.txt
 	diff Sample_Testcase/my_output1.txt Sample_Testcase/output1.txt
@@ -43,5 +44,30 @@ s2:
 	./$(TARGET) Sample_Testcase/input2.txt Sample_Testcase/my_output2.txt
 	diff Sample_Testcase/my_output2.txt Sample_Testcase/output2.txt
 
+# Jimmy testcase
+j1:
+	./$(TARGET) Jimmy_Testcase/input1.txt Jimmy_Testcase/my_output1.txt
+	diff Jimmy_Testcase/my_output1.txt Jimmy_Testcase/output1.txt
+
+j2:
+	./$(TARGET) Jimmy_Testcase/input2.txt Jimmy_Testcase/my_output2.txt
+	diff Jimmy_Testcase/my_output2.txt Jimmy_Testcase/output2.txt
+
+j3:
+	./$(TARGET) Jimmy_Testcase/input3.txt Jimmy_Testcase/my_output3.txt
+	diff Jimmy_Testcase/my_output3.txt Jimmy_Testcase/output3.txt
+
+j4:
+	./$(TARGET) Jimmy_Testcase/input4.txt Jimmy_Testcase/my_output4.txt
+	diff Jimmy_Testcase/my_output4.txt Jimmy_Testcase/output4.txt
+
+j5:
+	./$(TARGET) Jimmy_Testcase/input5.txt Jimmy_Testcase/my_output5.txt
+	diff Jimmy_Testcase/my_output5.txt Jimmy_Testcase/output5.txt
+
+j6:
+	./$(TARGET) Jimmy_Testcase/input6.txt Jimmy_Testcase/my_output6.txt
+	diff Jimmy_Testcase/my_output6.txt Jimmy_Testcase/output6.txt
+
 clean:
-	rm -rf $(OBJDIR) $(TARGET) Sample_Testcase/my*
+	rm -rf $(OBJDIR) $(TARGET) Sample_Testcase/my* Jimmy_Testcase/my*
