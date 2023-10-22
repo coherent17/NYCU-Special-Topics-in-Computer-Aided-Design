@@ -116,5 +116,8 @@ m6:
 m7:
 	./$(TARGET) My_Testcase/input7.txt My_Testcase/my_output7.txt
 
+m8:
+	./$(TARGET) My_Testcase/input8.txt My_Testcase/my_output8.txt
+
 clean:
 	rm -rf $(OBJDIR) $(TARGET) Sample_Testcase/my* Jimmy_Testcase/my* Zip_Testcase/my* My_Testcase/my*
