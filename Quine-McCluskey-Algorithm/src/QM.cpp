@@ -1,6 +1,6 @@
 #include "QM.h"
 // Constructor & Destructor
-QM::QM():Num_Vars(0), Min_Literal(INT_MAX){
+QM::QM():Num_Vars(0), Min_Cover(INT_MAX), Min_Literal(INT_MAX){
     ;
 }
 
@@ -391,17 +391,16 @@ void QM::Build_Product_Of_Sum(){
 
 void QM::Build_Sum_Of_Product(){
     vector<string> visited_terms;
-    size_t Current_Min_Term_Count = INT_MAX;
-    Multiply_Terms(visited_terms, 0, Current_Min_Term_Count);
+    Multiply_Terms(visited_terms, 0);
 }
 
-void QM::Multiply_Terms(vector<string> &visited_terms, size_t visited_index, size_t &Current_Min_Term_Count){
+void QM::Multiply_Terms(vector<string> &visited_terms, size_t visited_index){
     // Recursion terminate condition
     if(visited_index == Product_Of_Sum.size()){
         vector<string> visited_terms_copy(visited_terms);
         sort(visited_terms_copy.begin(), visited_terms_copy.end());
         visited_terms_copy.erase(unique(visited_terms_copy.begin(), visited_terms_copy.end()), visited_terms_copy.end());
-        if(visited_terms_copy.size() < Current_Min_Term_Count) Current_Min_Term_Count = visited_terms_copy.size();
+        if(visited_terms_copy.size() < Min_Cover) Min_Cover = visited_terms_copy.size();
         Sum_Of_Product.emplace_back(visited_terms_copy);
         return;
     }
@@ -412,16 +411,17 @@ void QM::Multiply_Terms(vector<string> &visited_terms, size_t visited_index, siz
         sort(visited_terms_copy.begin(), visited_terms_copy.end());
         visited_terms_copy.erase(unique(visited_terms_copy.begin(), visited_terms_copy.end()), visited_terms_copy.end());
         // Branch & Bound the recursion depth, +1 for larger term but has lower literals cost
-        if(Current_Min_Term_Count + 1 < visited_terms_copy.size()) break;
+        if(Min_Cover < visited_terms_copy.size()) break;
         string Candidate_Prime_Implicant = Product_Of_Sum[visited_index][i];
         visited_terms.emplace_back(Candidate_Prime_Implicant);
-        Multiply_Terms(visited_terms, visited_index + 1, Current_Min_Term_Count);
+        Multiply_Terms(visited_terms, visited_index + 1);
         visited_terms.pop_back();
     }
 }
 
 void QM::Find_Minimum_Cover(){
     size_t Min_Index = -1;
+    cout << Min_Cover << endl;
     for(size_t i = 0; i < Sum_Of_Product.size(); i++){
         size_t Literal_Count = 0;
         for(size_t j = 0; j < Sum_Of_Product[i].size(); j++){

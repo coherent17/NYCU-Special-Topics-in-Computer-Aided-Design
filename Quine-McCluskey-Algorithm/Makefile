@@ -35,25 +35,13 @@ gen_table:
 check:
 	$(CHECKCC) $(CHECKFLAGS) ./$(TARGET) input/input3.txt output/output3.txt
 
+s1:
+	./$(TARGET) Sample_Testcase/input1.txt Sample_Testcase/my_output1.txt
+	diff Sample_Testcase/my_output1.txt Sample_Testcase/output1.txt
 
-do1:
-	./$(TARGET) testcase2/input1.txt testcase2/ouput1.txt
-
-do2:
-	./$(TARGET) testcase2/input2.txt testcase2/ouput2.txt
-
-do3:
-	./$(TARGET) testcase2/input3.txt testcase2/ouput3.txt
-
-do4:
-	./$(TARGET) testcase2/input4.txt testcase2/ouput4.txt
-
-do5:
-	./$(TARGET) testcase2/input5.txt testcase2/ouput5.txt
-
-do6:
-	./$(TARGET) testcase2/input6.txt testcase2/ouput6.txt
-
+s2:
+	./$(TARGET) Sample_Testcase/input2.txt Sample_Testcase/my_output2.txt
+	diff Sample_Testcase/my_output2.txt Sample_Testcase/output2.txt
 
 clean:
-	rm -rf $(OBJDIR) $(TARGET) output
+	rm -rf $(OBJDIR) $(TARGET) Sample_Testcase/my*

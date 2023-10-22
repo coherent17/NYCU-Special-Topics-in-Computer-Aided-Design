@@ -18,6 +18,7 @@ class QM{
         vector<string>  Prime_Implicants;
 
         // For Petrick's Method
+        size_t Min_Cover;
         size_t Min_Literal;
         vector<string> Essential_Prime_Implicants;
         vector<string> Candidate_Prime_Implicants;
@@ -50,7 +51,7 @@ class QM{
         void Classify_Prime_Implicats();
         void Build_Product_Of_Sum();
         void Build_Sum_Of_Product();
-        void Multiply_Terms(vector<string> &visited_terms, size_t visited_index, size_t &Current_Min_Term_Count);
+        void Multiply_Terms(vector<string> &visited_terms, size_t visited_index);
         void Find_Minimum_Cover();
         
 };
