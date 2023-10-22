@@ -94,5 +94,27 @@ z6:
 	./$(TARGET) Zip_Testcase/input6.txt Zip_Testcase/my_output6.txt
 	diff -w Zip_Testcase/my_output6.txt Zip_Testcase/output6.txt
 
+# My testcase
+m1:
+	./$(TARGET) My_Testcase/input1.txt My_Testcase/my_output1.txt
+
+m2:
+	./$(TARGET) My_Testcase/input2.txt My_Testcase/my_output2.txt
+
+m3:
+	./$(TARGET) My_Testcase/input3.txt My_Testcase/my_output3.txt
+
+m4:
+	./$(TARGET) My_Testcase/input4.txt My_Testcase/my_output4.txt
+
+m5:
+	./$(TARGET) My_Testcase/input5.txt My_Testcase/my_output5.txt
+
+m6:
+	./$(TARGET) My_Testcase/input6.txt My_Testcase/my_output6.txt
+
+m7:
+	./$(TARGET) My_Testcase/input7.txt My_Testcase/my_output7.txt
+
 clean:
-	rm -rf $(OBJDIR) $(TARGET) Sample_Testcase/my* Jimmy_Testcase/my* Zip_Testcase/my*
+	rm -rf $(OBJDIR) $(TARGET) Sample_Testcase/my* Jimmy_Testcase/my* Zip_Testcase/my* My_Testcase/my*

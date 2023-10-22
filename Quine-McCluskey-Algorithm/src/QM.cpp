@@ -95,7 +95,7 @@ void QM::Dump(ofstream &fout){
                 if(Prime_Implicants[i][j] == '0') Alphabet_Literal+= Alphabets_Negative[j];
                 else if(Prime_Implicants[i][j] == '1') Alphabet_Literal+= Alphabets_Positive[j];
             }
-            fout << Alphabet_Literal << endl;
+            if(Alphabet_Literal != "") fout << Alphabet_Literal << endl;
             if(i == 14) break;
         }
         fout << endl;
