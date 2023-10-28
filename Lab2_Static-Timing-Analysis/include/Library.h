@@ -12,6 +12,7 @@ struct Look_Up_Table{
     // Constructor & Destructor
     Look_Up_Table(string);
     ~Look_Up_Table();
+    friend ostream &operator<<(ostream &, Look_Up_Table &);
 };
 
 struct Library{
@@ -23,9 +24,7 @@ struct Library{
     Library();
     ~Library();
 
-    // Parser
-    void Parser(ifstream &);
-
+    friend ostream &operator<<(ostream &, const Library &);
 };
 
 #endif

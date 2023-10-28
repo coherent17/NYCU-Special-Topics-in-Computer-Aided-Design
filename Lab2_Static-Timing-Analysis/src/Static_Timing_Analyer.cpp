@@ -6,7 +6,7 @@ Static_Timing_Analyer::Static_Timing_Analyer(){
 }
 
 Static_Timing_Analyer::~Static_Timing_Analyer(){
-    ;
+    delete Lib;
 }
 
 // Parser (Netlist & Library)
@@ -19,7 +19,7 @@ void Static_Timing_Analyer::Library_Parser(ifstream &fin){
     regex Cell_Pattern("^cell\\(");
     regex Pin_Pattern("^pin\\(");
     regex Cap_Pattern("^capacitance");
-    regex Table_Name("(^rise)")
+    regex Table_Name_Pattern("(^rise_power)|(^fall_power)|(^cell_rise)|(^cell_fall)|(^rise_transition)|(^fall_transition)");
     regex Table_Pattern("(^values)|(^\")");
 
     string Cell_Name;
@@ -32,8 +32,8 @@ void Static_Timing_Analyer::Library_Parser(ifstream &fin){
         // Remove the comment and the space in the string
         line = regex_replace(line, Comment_Space_Pattern, "");
 
-        // Continue for only "}" in the line
-        if(line.length() == 1) continue;
+        // Continue for only "}" or " " in the line
+        if(line.length() <= 1) continue;
 
         // Extract the index1 & index2 infomation
         if(regex_search(line, Index_Head_Pattern)){
@@ -70,16 +70,27 @@ void Static_Timing_Analyer::Library_Parser(ifstream &fin){
         else if(regex_search(line, Cap_Pattern)){
             size_t Start_Index = line.find(":");
             size_t End_Index = line.rfind(";");
-            double capacitance = stod(line.substr(Start_Index + 1, End_Index - Start_Index - 1));
-            Lib->LUT[Cell_Name]->Pin_Cap[Pin_Name] = capacitance;
-            //cout << Cell_Name << " " << Pin_Name << " " << capacitance << endl;
+            double Capacitance = stod(line.substr(Start_Index + 1, End_Index - Start_Index - 1));
+            Lib->LUT[Cell_Name]->Pin_Cap[Pin_Name] = Capacitance;
         }
-        else{
-            cout << line << endl;
+
+        // Extract the 2D LUT (input slew vs output loading)
+        else if(regex_search(line, Table_Name_Pattern)){
+            size_t End_Index = line.rfind("(");
+            Table_Name = line.substr(0, End_Index);
+        }
+        else if(regex_search(line, Table_Pattern)){
+            size_t Start_Index = line.find("\"");
+            size_t End_Index = line.rfind("\"");
+            string Extract_Values = line.substr(Start_Index + 1, End_Index - Start_Index - 1);
+            smatch match;
+            while(regex_search(Extract_Values, match, Float_Pattern)){
+                double Delay = stod(match.str());
+                Lib->LUT[Cell_Name]->Table[Table_Name].emplace_back(Delay);
+                Extract_Values = match.suffix().str();
+            }
         }
     }
-
-
     fin.close();
 }
 
