@@ -1,6 +1,6 @@
 # ompiler & Linker settings
 CC = g++
-CFLAGS = -g -Wall -std=c++11 -DNDEBUG -O3 -I./include
+CFLAGS = -g -Wall -std=c++11 -O3 -I./include
 
 # Valgrind for memory issue
 CHECKCC = valgrind
@@ -31,13 +31,13 @@ check:
 	$(CHECKCC) $(CHECKFLAGS)
 
 example:
-	./$(TARGET) example.v -l test_lib.lib
+	./$(TARGET) Test_Case/example.v -l Test_Case/test_lib.lib
 
 c17:
-	./$(TARGET) c17.v -l test_lib.lib
+	./$(TARGET) Test_Case/c17.v -l Test_Case/test_lib.lib
 
 c432:
-	./$(TARGET) c432.v -l test_lib.lib
+	./$(TARGET) Test_Case/c432.v -l Test_Case/test_lib.lib
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET)
