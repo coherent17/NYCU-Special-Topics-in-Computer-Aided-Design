@@ -1,6 +1,6 @@
 # ompiler & Linker settings
 CC = g++
-CFLAGS = -g -Wall -std=c++11 -O3 -I./include
+CFLAGS = -g -Wall -std=c++11 -I./include
 
 # Valgrind for memory issue
 CHECKCC = valgrind

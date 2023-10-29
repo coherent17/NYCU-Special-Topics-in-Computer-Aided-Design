@@ -11,17 +11,6 @@ Static_Timing_Analyer::~Static_Timing_Analyer(){
 
 // Parser (Netlist & Library)
 void Static_Timing_Analyer::Library_Parser(ifstream &fin){
-    
-    // The regular expression used to extract the pattern in the text
-    regex Comment_Space_Pattern("(\\/\\/.*)|(\\/\\*.*\\*\\/)|(\\s+)");
-    regex Index_Head_Pattern("index\\w*");
-    regex Float_Pattern(R"(-?\d+(\.\d+)?)");
-    regex Cell_Pattern("^cell\\(");
-    regex Pin_Pattern("^pin\\(");
-    regex Cap_Pattern("^capacitance");
-    regex Table_Name_Pattern("(^rise_power)|(^fall_power)|(^cell_rise)|(^cell_fall)|(^rise_transition)|(^fall_transition)");
-    regex Table_Pattern("(^values)|(^\")");
-
     string Cell_Name;
     string Pin_Name;
     string Table_Name;
@@ -96,7 +85,99 @@ void Static_Timing_Analyer::Library_Parser(ifstream &fin){
 
 void Static_Timing_Analyer::Netlist_Parser(ifstream &fin){
     
+    Cell *cell;
+    Net *net;
+
+    string line;
+    while(getline(fin, line)){
+        // Remove comment and the multiple spaces
+        line = regex_replace(line, Comment_Front_Space_Pattern, "");
+        line = regex_replace(line, Multi_Space_Pattern, " ");
+
+        // Continue for empty line
+        if(line.length() <= 1) continue;
 
 
+        if(regex_search(line, Net_Input_Pattern)){
+            smatch match;
+            while(regex_search(line, match, Net_Name_Pattern)){
+                if(match.str() != "input"){
+                    cell = new Cell(match.str(), Primary_Input);
+                    Primary_Input_Cells[match.str()] = cell;
+                    net = new Net(match.str(), input);
+                    Nets[match.str()] = net;
+                }
+                line = match.suffix().str();
+            }
+        }
+
+        else if(regex_search(line, Net_Output_Pattern)){
+            smatch match;
+            while(regex_search(line, match, Net_Name_Pattern)){
+                if(match.str() != "output"){
+                    cell = new Cell(match.str(), Primary_Output);
+                    Primary_Output_Cells[match.str()] = cell;
+                    net = new Net(match.str(), output);
+                    Nets[match.str()] = net;
+                }
+                line = match.suffix().str();
+            }
+        }
+
+        else if(regex_search(line, Net_Wire_Pattern)){
+            smatch match;
+            while(regex_search(line, match, Net_Name_Pattern)){
+                if(match.str() != "wire"){
+                    net = new Net(match.str(), wire);
+                    Nets[match.str()] = net;
+                }
+                line = match.suffix().str();
+            }
+        }
+
+        // Read gate connection
+        else if(regex_search(line, Cell_Type_Pattern)){
+            cout << line << endl;
+            smatch match;
+            Cell_Type type;
+            regex_search(line, match, Cell_Type_Pattern);
+            if(match.str() == "NOR2X1" || match.str() == "INVX1" || match.str() == "NANDX1"){
+                if(match.str() == "NOR2X1") type = NOR2X1;
+                else if(match.str() == "INVX1") type = INVX1;
+                else if(match.str() == "NANDX1") type = NANDX1;
+            }
+
+            string Cell_Name = "";
+            while(regex_search(line, match, Pin_Name_Pattern)){
+                if(match.str() == "NOR2X1" || match.str() == "INVX1" || match.str() == "NANDX1"){
+                    line = match.suffix().str();
+                    continue;
+                }
+                else if(Cell_Name == ""){
+                    Cell_Name = match.str();
+                    cell = new Cell(Cell_Name, type);
+                    Cells[Cell_Name] = cell;
+                }
+                // Pin connection
+                else{
+                    string Pin_Name = match.str();
+                    if(Pin_Name == "ZN"){
+                        line = match.suffix().str();
+                        regex_search(line, match, Pin_Name_Pattern);
+                        string Net_Name = match.str();
+                        cell->Output = Nets[Net_Name];
+                    }
+                    else if(Pin_Name == "A1" || Pin_Name == "A2" || Pin_Name == "I"){
+                        line = match.suffix().str();
+                        regex_search(line, match, Pin_Name_Pattern);
+                        string Net_Name = match.str();
+                        cell->Input.emplace_back(Nets[Net_Name]);
+                    }
+
+                }
+                line = match.suffix().str();
+            }
+        }
+    }
     fin.close();
 }
