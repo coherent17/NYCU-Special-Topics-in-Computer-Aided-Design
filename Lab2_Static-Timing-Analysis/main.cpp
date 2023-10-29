@@ -9,7 +9,7 @@ int main(int argc, char *argv[]){
     Static_Timing_Analyer *STA = new Static_Timing_Analyer();
     STA->Netlist_Parser(Netlist_File);
     STA->Library_Parser(Library_File);
-
+    STA->Calculate_Output_Loading();
     //cout << *(STA->Lib) << endl;
     delete STA;
     return 0;

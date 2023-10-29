@@ -10,9 +10,7 @@ using namespace std;
 
 struct Static_Timing_Analyer{
     Library *Lib;
-    unordered_map<string, Cell *> Primary_Input_Cells;
     unordered_map<string, Cell *> Cells;
-    unordered_map<string, Cell *> Primary_Output_Cells;
     unordered_map<string, Net *> Nets;
 
     // Constructor & Destructor
@@ -22,6 +20,9 @@ struct Static_Timing_Analyer{
     // Parser (Netlist & Library)
     void Library_Parser(ifstream &);
     void Netlist_Parser(ifstream &);
+
+    // Step 1: Calculate Output Loading
+    void Calculate_Output_Loading();
 };
 
 #endif

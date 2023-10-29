@@ -13,6 +13,7 @@ struct Cell{
     Cell_Type Type;
     vector<Net *> Input;    // Fan In
     Net *Output;            // No Fan Out
+    double Output_Loading;
 
     Cell(string, Cell_Type);
     ~Cell();

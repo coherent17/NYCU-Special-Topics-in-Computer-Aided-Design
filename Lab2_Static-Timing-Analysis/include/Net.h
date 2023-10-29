@@ -10,9 +10,10 @@ struct Cell;
 struct Net{
     string Net_Name;
     Net_Type Type;
-    vector<Cell *> Cell_In;
-    vector<Cell *> Cell_Out;
+    unordered_map<string, Cell *> Cell_In;
+    unordered_map<string, Cell *> Cell_Out;
 
+    // Constructor & Destructor
     Net(string, Net_Type);
     ~Net();
 };

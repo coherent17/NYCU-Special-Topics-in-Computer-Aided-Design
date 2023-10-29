@@ -7,6 +7,12 @@ Static_Timing_Analyer::Static_Timing_Analyer(){
 
 Static_Timing_Analyer::~Static_Timing_Analyer(){
     delete Lib;
+    for(const auto &pair : Cells) {
+        delete pair.second;
+    }
+    for(const auto &pair : Nets){
+        delete pair.second;
+    }
 }
 
 // Parser (Netlist & Library)
@@ -84,9 +90,11 @@ void Static_Timing_Analyer::Library_Parser(ifstream &fin){
 }
 
 void Static_Timing_Analyer::Netlist_Parser(ifstream &fin){
-    
     Cell *cell;
     Net *net;
+    Cell_Type cell_type;
+    Net_Type net_type;
+    smatch match;
 
     string line;
     while(getline(fin, line)){
@@ -97,87 +105,78 @@ void Static_Timing_Analyer::Netlist_Parser(ifstream &fin){
         // Continue for empty line
         if(line.length() <= 1) continue;
 
+        // Extract the net info (Net name, Net type)
+        if(regex_search(line, match, Net_Pattern)){
+            // Find the Net type
+            string net_type_s = match.str();
+            if(net_type_s == "input") net_type = input;
+            else if(net_type_s == "output") net_type = output;
+            else if(net_type_s == "wire") net_type = wire;
+            line = match.suffix().str();
 
-        if(regex_search(line, Net_Input_Pattern)){
-            smatch match;
+            // Extract the Net name that belongs to this net type
             while(regex_search(line, match, Net_Name_Pattern)){
-                if(match.str() != "input"){
-                    cell = new Cell(match.str(), Primary_Input);
-                    Primary_Input_Cells[match.str()] = cell;
-                    net = new Net(match.str(), input);
-                    Nets[match.str()] = net;
-                }
+                string net_name = match.str();
+                net = new Net(net_name, net_type);
+                Nets[net_name] = net;
                 line = match.suffix().str();
             }
         }
 
-        else if(regex_search(line, Net_Output_Pattern)){
-            smatch match;
-            while(regex_search(line, match, Net_Name_Pattern)){
-                if(match.str() != "output"){
-                    cell = new Cell(match.str(), Primary_Output);
-                    Primary_Output_Cells[match.str()] = cell;
-                    net = new Net(match.str(), output);
-                    Nets[match.str()] = net;
-                }
-                line = match.suffix().str();
-            }
-        }
+        // Read Gate-Level netlist
+        if(regex_search(line, match, Cell_Type_Pattern)){
+            // Extract Cell Type
+            string cell_type_s = match.str();
+            if(cell_type_s == "NOR2X1") cell_type = NOR2X1;
+            else if(cell_type_s == "INVX1") cell_type = INVX1;
+            else if(cell_type_s == "NANDX1") cell_type = NANDX1;
+            line = match.suffix().str();
 
-        else if(regex_search(line, Net_Wire_Pattern)){
-            smatch match;
-            while(regex_search(line, match, Net_Name_Pattern)){
-                if(match.str() != "wire"){
-                    net = new Net(match.str(), wire);
-                    Nets[match.str()] = net;
-                }
-                line = match.suffix().str();
-            }
-        }
+            // Extract Cell Name
+            string cell_name;
+            regex_search(line, match, Pin_Name_Pattern);
+            cell_name = match.str();
+            line = match.suffix().str();
+            cell = new Cell(cell_name, cell_type);
+            Cells[cell_name] = cell;
 
-        // Read gate connection
-        else if(regex_search(line, Cell_Type_Pattern)){
-            cout << line << endl;
-            smatch match;
-            Cell_Type type;
-            regex_search(line, match, Cell_Type_Pattern);
-            if(match.str() == "NOR2X1" || match.str() == "INVX1" || match.str() == "NANDX1"){
-                if(match.str() == "NOR2X1") type = NOR2X1;
-                else if(match.str() == "INVX1") type = INVX1;
-                else if(match.str() == "NANDX1") type = NANDX1;
-            }
-
-            string Cell_Name = "";
+            // Extract the pin connection
             while(regex_search(line, match, Pin_Name_Pattern)){
-                if(match.str() == "NOR2X1" || match.str() == "INVX1" || match.str() == "NANDX1"){
-                    line = match.suffix().str();
-                    continue;
-                }
-                else if(Cell_Name == ""){
-                    Cell_Name = match.str();
-                    cell = new Cell(Cell_Name, type);
-                    Cells[Cell_Name] = cell;
-                }
-                // Pin connection
-                else{
-                    string Pin_Name = match.str();
-                    if(Pin_Name == "ZN"){
-                        line = match.suffix().str();
-                        regex_search(line, match, Pin_Name_Pattern);
-                        string Net_Name = match.str();
-                        cell->Output = Nets[Net_Name];
-                    }
-                    else if(Pin_Name == "A1" || Pin_Name == "A2" || Pin_Name == "I"){
-                        line = match.suffix().str();
-                        regex_search(line, match, Pin_Name_Pattern);
-                        string Net_Name = match.str();
-                        cell->Input.emplace_back(Nets[Net_Name]);
-                    }
-
-                }
+                string pin_name = match.str();
                 line = match.suffix().str();
+                regex_search(line, match, Pin_Name_Pattern);
+                string pin_connect_net_name = match.str();
+                line = match.suffix().str();
+                if(pin_name == "ZN"){
+                    Nets[pin_connect_net_name]->Cell_In[pin_name] = cell;
+                    cell->Output = Nets[pin_connect_net_name];
+                    if(cell->Output->Type == output) cell->Output_Loading = 0.03;
+                }
+                else if(pin_name == "A1" || pin_name == "A2" || pin_name == "I"){
+                    Nets[pin_connect_net_name]->Cell_Out[pin_name] = cell;
+                    cell->Input.emplace_back(Nets[pin_connect_net_name]);
+                }
             }
         }
-    }
+    }   
     fin.close();
+}
+
+void Static_Timing_Analyer::Calculate_Output_Loading(){
+    for(const auto &pair : Cells) {
+        Cell *cell = pair.second;
+        Net *Output_Net = cell->Output;
+        double Output_Loading = cell->Output_Loading;
+        for(const auto &cell_out : Output_Net->Cell_Out){
+            string pin_name = cell_out.first;
+            string cell_type_s;
+            Cell_Type type = cell_out.second->Type;
+            if(type == NANDX1) cell_type_s = "NANDX1";
+            else if(type == INVX1) cell_type_s = "INVX1";
+            else if(type == NOR2X1) cell_type_s = "NOR2X1";
+            Output_Loading += Lib->LUT[cell_type_s]->Pin_Cap[pin_name];
+        }
+        cell->Output_Loading = Output_Loading;
+        cout << cell->Cell_Name << " " << Output_Loading << endl;
+    }
 }
