@@ -5,17 +5,25 @@
 #include "Cell.h"
 using namespace std;
 
-struct Cell;
+enum Net_Type{
+    input,
+    output,
+    wire
+};
 
-struct Net{
-    string Net_Name;
-    Net_Type Type;
-    unordered_map<string, Cell *> Cell_In;
-    unordered_map<string, Cell *> Cell_Out;
+class Cell;
 
-    // Constructor & Destructor
-    Net(string, Net_Type);
-    ~Net();
+class Net{
+    public:
+        string Name;
+        Net_Type Type;
+        unordered_map<string, Cell *> Input_Cell_Connections;
+        unordered_map<string, Cell *> Output_Cell_Connections;
+
+    public:
+        // Constructor & Destructor
+        Net(string, Net_Type);
+        ~Net();
 };
 
 #endif

@@ -1,7 +1,9 @@
 #include "Net.h"
 
-Net::Net(string Net_Name, Net_Type Type):Net_Name(Net_Name), Type(Type){
-    ;
+// Constructor & Destructor
+Net::Net(string Name, Net_Type Type){
+    this->Name = Name;
+    this->Type = Type;
 }
 
 Net::~Net(){

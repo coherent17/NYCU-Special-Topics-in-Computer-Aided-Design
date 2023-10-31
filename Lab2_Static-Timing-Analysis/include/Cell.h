@@ -6,17 +6,26 @@
 #include "Net.h"
 using namespace std;
 
-struct Net;
+enum Cell_Type{
+    NOR2X1,
+    INVX1,
+    NANDX1
+};
 
-struct Cell{
-    string Cell_Name;
-    Cell_Type Type;
-    vector<Net *> Input;    // Fan In
-    Net *Output;            // No Fan Out
-    double Output_Loading;
+class Net;
 
-    Cell(string, Cell_Type);
-    ~Cell();
+class Cell{
+    public:
+        string Name;
+        Cell_Type Type;
+        vector<Net *> Input_Nets;
+        Net *Output_Net;
+        double Output_Loading;
+    
+    public:
+        // Constructor & Destructor
+        Cell(string, Cell_Type);
+        ~Cell();
 };
 
 #endif

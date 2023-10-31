@@ -2,29 +2,25 @@
 #define _LIBRARY_H_
 
 #include <bits/stdc++.h>
+#include "Cell_LUT.h"
 using namespace std;
 
-struct Look_Up_Table{
-    string Cell_Name;
-    unordered_map<string, double> Pin_Cap;
-    unordered_map<string, vector<double>> Table;
+class Library{
+    public:
+        vector<double> Index_1;
+        vector<double> Index_2;
+        unordered_map<string, Cell_LUT *> Cell_LUT_Map;
 
-    // Constructor & Destructor
-    Look_Up_Table(string);
-    ~Look_Up_Table();
-    friend ostream &operator<<(ostream &, Look_Up_Table &);
-};
+    public:
+        // Constructor & Destructor
+        Library();
+        ~Library();
 
-struct Library{
-    vector<double> index_1;     // Output Cap
-    vector<double> index_2;     // Input Slew
-    unordered_map<string, Look_Up_Table *> LUT;
+        // Getter
+        const Cell_LUT *Get_Cell_LUT(const string &Cell_Name);
 
-    // Constructor & Destructor
-    Library();
-    ~Library();
-
-    friend ostream &operator<<(ostream &, const Library &);
+        // cout Library
+        friend ostream &operator<<(ostream &out, const Library &library);
 };
 
 #endif
