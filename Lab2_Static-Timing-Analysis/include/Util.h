@@ -4,6 +4,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define STUDENT_ID "0811562"
+
 // The regular expression used to extract the pattern while parsing Library
 const regex Comment_Space_Pattern("(\\/\\/.*)|(\\/\\*.*\\*\\/)|(\\s+)");
 const regex Index_1_Pattern("index_1\\w*");
@@ -21,5 +23,6 @@ const regex Multi_Space_Pattern("(\\s+)");
 const regex Net_Type_Pattern("(input)|(output)|(wire)");
 const regex Cell_Type_Pattern("(NOR2X1)|(NANDX1)|(INVX1)");
 const regex Word_Pattern("\\w+");
+const regex Number_Pattern("\\d+");
 
 #endif

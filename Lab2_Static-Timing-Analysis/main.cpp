@@ -3,14 +3,13 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
-    ifstream Netlist_File(argv[1]);
-    ifstream Library_File(argv[3]);
-
     STA *sta_manager = new STA();
-    sta_manager->Parse_Library(Library_File);
-    sta_manager->Parse_Netlist(Netlist_File);
+    sta_manager->Parse_Library(argv[3]);
+    sta_manager->Parse_Netlist(argv[1]);
 
+    // Step 1
     sta_manager->Calculate_Output_Loading();
+    sta_manager->Dump_Output_Loading();
     delete sta_manager;
     return 0;
 }

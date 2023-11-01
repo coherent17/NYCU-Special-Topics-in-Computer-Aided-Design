@@ -16,7 +16,9 @@ STA::~STA(){
 }
 
 // Parser
-void STA::Parse_Library(ifstream &library_file){
+void STA::Parse_Library(const char *library_filename){
+    this->library_filename = library_filename;
+    ifstream library_file(library_filename);
     string Cell_Name, Pin_Name, Table_Name, line;
     smatch match;
     while(getline(library_file, line)){
@@ -88,7 +90,15 @@ void STA::Parse_Library(ifstream &library_file){
     library_file.close();
 }
 
-void STA::Parse_Netlist(ifstream &netlist_file){
+
+void STA::Parse_Netlist(const char *netlist_filename){
+    this->netlist_filename = netlist_filename;
+    string filename(netlist_filename);
+    size_t Start_Index = filename.find_last_of("/");
+    size_t End_Index = filename.find_last_of(".");
+    Design_Name = filename.substr(Start_Index + 1, End_Index - Start_Index - 1);
+
+    ifstream netlist_file(netlist_filename);
     // Remove comment in verilog code
     string Verilog_Code, line;
     while(getline(netlist_file, line)){
@@ -160,13 +170,13 @@ void STA::Parse_Netlist(ifstream &netlist_file){
                 string pin_connect_net_name = match.str();
                 line = match.suffix().str();
                 if(pin_name == "ZN"){
-                    Nets[pin_connect_net_name]->Input_Cell_Connections[pin_name] = cell;
+                    Nets[pin_connect_net_name]->Input_Cell_Connections = make_pair(pin_name, cell);
                     cell->Output_Net = Nets[pin_connect_net_name];
                     // The loading of primary output of the design is 0.03
                     if(cell->Output_Net->Type == output) cell->Output_Loading = 0.03;
                 }
                 else if(pin_name == "A1" || pin_name == "A2" || pin_name == "I"){
-                    Nets[pin_connect_net_name]->Output_Cell_Connections[pin_name] = cell;
+                    Nets[pin_connect_net_name]->Output_Cell_Connections.emplace_back(make_pair(pin_name, cell));
                     cell->Input_Nets.emplace_back(Nets[pin_connect_net_name]);
                 }
                 else{
@@ -174,6 +184,18 @@ void STA::Parse_Netlist(ifstream &netlist_file){
                 }
             }
         }
+    }
+}
+
+void STA::Print_Netlist(){
+    cout << "Design Name: " << Design_Name << endl;
+    cout << "Cells: " << endl;
+    for (const auto &cell : Cells) {
+        cout << *(cell.second) << endl;
+    }
+    cout << "Nets: " << endl;
+    for (const auto &net : Nets){
+        cout << *(net.second) << endl;
     }
 }
 
@@ -194,6 +216,24 @@ void STA::Calculate_Output_Loading(){
             Output_Loading += library->Cell_LUT_Map[cell_type_str]->Pin_Cap[pin_name];
         }
         cell->Output_Loading = Output_Loading;
-        cout << cell->Name << " " << Output_Loading << endl;
     }
+}
+
+void STA::Dump_Output_Loading(){
+    ofstream fout(string(STUDENT_ID) + "_" + Design_Name + "_load.txt");
+    auto cell_cmp = [](const Cell *c1, const Cell *c2){
+        if(c1->Output_Loading == c2->Output_Loading){
+            return c1->Instance_Number < c2->Instance_Number;
+        }
+        return c1->Output_Loading > c2->Output_Loading;
+    };
+    vector<Cell *> Sorted_Cells;
+    for(const auto &cell : Cells){
+        Sorted_Cells.emplace_back(cell.second);
+    }
+    sort(Sorted_Cells.begin(), Sorted_Cells.end(), cell_cmp);
+    for(const auto &cell: Sorted_Cells){
+        fout << cell->Name << " " << fixed << setprecision(6) << cell->Output_Loading << endl;
+    }
+    fout.close();
 }
