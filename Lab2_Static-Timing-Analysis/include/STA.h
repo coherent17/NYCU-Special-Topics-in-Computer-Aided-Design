@@ -16,6 +16,11 @@ class STA{
         Library *library;
         unordered_map<string, Cell *> Cells;
         unordered_map<string, Net *> Nets;
+        size_t Num_Cell;
+        size_t Num_Net;
+
+        // For step 2 
+        vector<Cell *> Cells_In_Topological_Order;
 
     public:
         // Constructor & Destructor
@@ -30,6 +35,17 @@ class STA{
         // Step 1
         void Calculate_Output_Loading();
         void Dump_Output_Loading();
+
+        // Step 2
+        void Calculate_Cell_Delay();
+        void Dump_Cell_Delay();
+
+    private:
+        void Cell_Topological_Sort();
+        void Set_Cell_Input_Transition_Time(Cell *cell);
+        double Table_Interpolation(double C_req, double S_req, double C1, double C2, double S1, double S2, double P0, double P1, double P2, double P3);
+        double Table_Look_Up(Cell *cell, const string &Table_Name);
+
 };
 
 #endif

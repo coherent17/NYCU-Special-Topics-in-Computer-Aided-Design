@@ -5,12 +5,6 @@
 #include "Cell.h"
 using namespace std;
 
-enum Net_Type{
-    input,
-    output,
-    wire
-};
-
 class Cell;
 
 class Net{

@@ -2,7 +2,9 @@
 
 // Constructor & Destructor
 STA::STA(){
-    library = new Library();
+    this->library = new Library();
+    this->Num_Cell = 0;
+    this->Num_Net = 0;
 }
 
 STA::~STA(){
@@ -185,10 +187,14 @@ void STA::Parse_Netlist(const char *netlist_filename){
             }
         }
     }
+    Num_Cell = Cells.size();
+    Num_Net = Nets.size();
 }
 
 void STA::Print_Netlist(){
     cout << "Design Name: " << Design_Name << endl;
+    cout << "Num Cells: " << Num_Cell << endl;
+    cout << "Num Nets: " << Num_Net << endl;
     cout << "Cells: " << endl;
     for (const auto &cell : Cells) {
         cout << *(cell.second) << endl;
@@ -236,4 +242,117 @@ void STA::Dump_Output_Loading(){
         fout << cell->Name << " " << fixed << setprecision(6) << cell->Output_Loading << endl;
     }
     fout.close();
+}
+
+
+// Step 2
+void STA::Cell_Topological_Sort(){
+    // Find the indegree of each cells
+    vector<Cell *> Cells_Copy;
+    for(const auto &c : Cells){
+        Cell *cell = c.second;
+        for(const auto &net : cell->Input_Nets){
+            if(net->Type != input) (cell->In_Degree)++;
+        }
+        Cells_Copy.emplace_back(cell);
+    }
+
+    // Perform topological sort using BFS
+    queue<Cell *> Process_Queue;
+    for(size_t i = 0; i < Cells_Copy.size(); i++){
+        if(Cells_Copy[i]->In_Degree == 0){
+            Cells_Copy[i]->Input_Transition_Time = 0;   // Boundary condition
+            Process_Queue.push(Cells_Copy[i]);
+        }
+    }
+
+    while(!Process_Queue.empty()){
+        Cell *curr_cell = Process_Queue.front();
+        Process_Queue.pop();
+        Cells_In_Topological_Order.emplace_back(curr_cell);
+        Net *curr_cell_output_net = curr_cell->Output_Net;
+        for(const auto &connection : curr_cell_output_net->Output_Cell_Connections){
+            Cell *curr_cell_output_cell = connection.second;
+            (curr_cell_output_cell->In_Degree)--;
+            if(curr_cell_output_cell->In_Degree == 0) Process_Queue.push(curr_cell_output_cell);
+        }
+    }
+    assert(Cells_In_Topological_Order.size() == Num_Cell);
+}
+
+void STA::Set_Cell_Input_Transition_Time(Cell *cell){
+    double input_transition_time = 0;
+    if(cell->Type == NOR2X1 || cell ->Type == NANDX1){
+        assert(cell->Input_Nets.size() == 2);
+        if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type == input){
+            input_transition_time = 0;
+        }
+        else if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type != input){
+            Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cell_Connections.second;
+            input_transition_time = pre_cell1->Output_Transition_Time;
+        } 
+        else if(cell->Input_Nets[0]->Type != input && cell->Input_Nets[1]->Type == input){
+            Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cell_Connections.second;
+            input_transition_time = pre_cell0->Output_Transition_Time;
+        } 
+        else{
+            Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cell_Connections.second;
+            Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cell_Connections.second;
+            input_transition_time = std::max(pre_cell0->Output_Transition_Time, pre_cell1->Output_Transition_Time);
+        }
+    }
+    else if(cell->Type == INVX1){
+        assert(cell->Input_Nets.size() == 1);
+        if(cell->Input_Nets[0]->Type == input){
+            input_transition_time = 0;
+        }
+        else{
+            input_transition_time = cell->Input_Nets[0]->Input_Cell_Connections.second->Output_Transition_Time;
+        }
+    }
+    else abort();
+    cell->Input_Transition_Time = input_transition_time;
+}
+
+double STA::Table_Interpolation(double C_req, double S_req, double C1, double C2, double S1, double S2, double P0, double P1, double P2, double P3){
+    double A = P0 + ((P2 - P0) / (S2 - S1)) * (S_req - S1);
+    double B = P3 + ((P1 - P3) / (S2 - S1)) * (S_req - S1);
+    double P = A + ((B - A) / (C2 - C1)) * (C_req - C1);
+    return P;
+}
+
+double STA::Table_Look_Up(Cell *cell, const string &Table_Name){
+    string cell_type_str;
+    if(cell->Type == NOR2X1) cell_type_str = "NOR2X1";
+    else if(cell->Type == INVX1) cell_type_str = "INVX1";
+    else if(cell->Type == NANDX1) cell_type_str = "NANDX1";
+    else abort();
+
+    size_t index_1_idx;
+    size_t index_2_idx;
+    for(index_1_idx = 0; index_1_idx < library->Index_1.size(); index_1_idx++){
+        if(cell->Output_Loading < library->Index_1[index_1_idx]) break;
+    }
+
+    for(index_2_idx = 0; index_2_idx < library->Index_2.size(); index_2_idx++){
+        if(cell->Input_Transition_Time < library->Index_2[index_2_idx]) break;
+    }
+
+    // boundary condition, input slew and output loading is out of range
+    if(index_1_idx == 0) index_1_idx = 1;
+    if(index_1_idx == 7) index_1_idx = 6;
+    if(index_2_idx == 0) index_2_idx = 1;
+    if(index_2_idx == 7) index_2_idx = 6;
+    
+    return Table_Interpolation(cell->Output_Loading, cell->Input_Transition_Time, library->Index_1[i - 1], library->Index_1[i], library->Index_2[j - 1], library->Index_2[j], library->)
+}
+
+void STA::Calculate_Cell_Delay(){
+    Cell_Topological_Sort();
+    for(const auto &cell : Cells_In_Topological_Order){
+        cout << cell->Name << endl;
+        Set_Cell_Input_Transition_Time(cell);
+
+        cout << cell->Input_Transition_Time << endl;
+    }
 }

@@ -8,6 +8,9 @@ Cell::Cell(string Name, Cell_Type Type){
     smatch match;
     regex_search(Name, match, Number_Pattern);
     this->Instance_Number = stoi(match.str());
+    this->In_Degree = 0;
+    this->Input_Transition_Time = UNSET;
+    this->Output_Transition_Time = UNSET;
 }
 
 Cell::~Cell(){

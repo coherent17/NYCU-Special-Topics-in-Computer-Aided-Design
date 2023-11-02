@@ -6,12 +6,6 @@
 #include "Net.h"
 using namespace std;
 
-enum Cell_Type{
-    NOR2X1,
-    INVX1,
-    NANDX1
-};
-
 class Net;
 
 class Cell{
@@ -22,6 +16,9 @@ class Cell{
         vector<Net *> Input_Nets;
         Net *Output_Net;
         double Output_Loading;
+        size_t In_Degree;
+        double Input_Transition_Time;
+        double Output_Transition_Time;
     
     public:
         // Constructor & Destructor

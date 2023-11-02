@@ -5,6 +5,19 @@
 using namespace std;
 
 #define STUDENT_ID "0811562"
+#define UNSET -1
+
+enum Cell_Type{
+    NOR2X1,
+    INVX1,
+    NANDX1
+};
+
+enum Net_Type{
+    input,
+    output,
+    wire
+};
 
 // The regular expression used to extract the pattern while parsing Library
 const regex Comment_Space_Pattern("(\\/\\/.*)|(\\/\\*.*\\*\\/)|(\\s+)");
