@@ -13,6 +13,7 @@ int main(int argc, char *argv[]){
 
     // Step 2
     sta_manager->Calculate_Cell_Delay();
+    sta_manager->Dump_Cell_Delay();
     //sta_manager->Print_Netlist();
     delete sta_manager;
     return 0;

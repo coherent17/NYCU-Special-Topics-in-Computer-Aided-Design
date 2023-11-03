@@ -20,6 +20,8 @@ class Cell{
         double Input_Transition_Time;
         double Output_Transition_Time;
         bool Worst_Case_Output;
+        double Propagation_Delay;
+        double Delay;   // The delay from input to this cell (without propagation delay of this cell)
     
     public:
         // Constructor & Destructor
