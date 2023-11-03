@@ -415,3 +415,27 @@ void STA::Dump_Cell_Delay(){
     }
     fout.close();
 }
+
+void STA::Find_Longest_Delay_And_Path(){
+    for(const auto &cell : Cells_In_Topological_Order){
+        for(const auto &net : cell->Input_Nets){
+            Cell *prev_cell = net->Input_Cell_Connections.second;
+            if(prev_cell == nullptr) continue;
+            if(prev_cell->Delay + prev_cell->Propagation_Delay + prev_cell->Output_Transition_Time + WIRE_DELAY > cell->Longest_Delay){
+                cell->Longest_Delay = prev_cell->Delay + prev_cell->Propagation_Delay + prev_cell->Output_Transition_Time + WIRE_DELAY;
+                cell->Longest_Delay_Prev_Cell = prev_cell;
+            }
+        }
+    }
+    for(const auto &cell : Cells_In_Topological_Order){
+        cout << cell->Name << " " << cell->Longest_Delay << endl;
+    }
+}
+
+void STA::Find_Shortest_Delay_And_Path(){
+
+}
+
+void STA::Dump_Longest_And_Shortest_Delay_And_Path(){
+
+}

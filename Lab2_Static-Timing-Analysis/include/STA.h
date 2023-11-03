@@ -40,6 +40,11 @@ class STA{
         void Calculate_Cell_Delay();
         void Dump_Cell_Delay();
 
+        // Step 3
+        void Find_Longest_Delay_And_Path();
+        void Find_Shortest_Delay_And_Path();
+        void Dump_Longest_And_Shortest_Delay_And_Path();
+
     private:
         void Cell_Topological_Sort();
         void Set_Cell_Input_Transition_Time(Cell *cell);

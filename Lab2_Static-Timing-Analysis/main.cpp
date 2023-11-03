@@ -14,7 +14,11 @@ int main(int argc, char *argv[]){
     // Step 2
     sta_manager->Calculate_Cell_Delay();
     sta_manager->Dump_Cell_Delay();
-    //sta_manager->Print_Netlist();
+    
+    // Step 3
+    sta_manager->Find_Longest_Delay_And_Path();
+    sta_manager->Find_Shortest_Delay_And_Path();
+    sta_manager->Dump_Longest_And_Shortest_Delay_And_Path();
     delete sta_manager;
     return 0;
 }
