@@ -17,7 +17,7 @@ class Library{
         ~Library();
 
         // Getter
-        const Cell_LUT *Get_Cell_LUT(const string &Cell_Name);
+        const vector<double> &Get_Cell_Table(const string &Cell_Name, const string &Table_Name);
 
         // cout Library
         friend ostream &operator<<(ostream &out, const Library &library);

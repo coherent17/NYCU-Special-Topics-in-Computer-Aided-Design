@@ -19,6 +19,7 @@ class Cell{
         size_t In_Degree;
         double Input_Transition_Time;
         double Output_Transition_Time;
+        bool Worst_Case_Output;
     
     public:
         // Constructor & Destructor

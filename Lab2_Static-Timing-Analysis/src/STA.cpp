@@ -338,21 +338,46 @@ double STA::Table_Look_Up(Cell *cell, const string &Table_Name){
         if(cell->Input_Transition_Time < library->Index_2[index_2_idx]) break;
     }
 
-    // boundary condition, input slew and output loading is out of range
+    // find the require number for table interpolation
+    const vector<double> Table = library->Get_Cell_Table(cell_type_str, Table_Name);
     if(index_1_idx == 0) index_1_idx = 1;
-    if(index_1_idx == 7) index_1_idx = 6;
     if(index_2_idx == 0) index_2_idx = 1;
+    if(index_1_idx == 7) index_1_idx = 6;
     if(index_2_idx == 7) index_2_idx = 6;
+    double C1 = library->Index_1[index_1_idx - 1];
+    double C2 = library->Index_1[index_1_idx];
+    double S1 = library->Index_2[index_2_idx - 1];
+    double S2 = library->Index_2[index_2_idx];
+    double P0 = Table[(index_1_idx - 1) + 7 * (index_2_idx - 1)];
+    double P1 = Table[(index_1_idx) + 7 * (index_2_idx)];
+    double P2 = Table[(index_1_idx - 1) + 7 * (index_2_idx)];
+    double P3 = Table[(index_1_idx) + 7 * (index_2_idx - 1)];
     
-    return Table_Interpolation(cell->Output_Loading, cell->Input_Transition_Time, library->Index_1[i - 1], library->Index_1[i], library->Index_2[j - 1], library->Index_2[j], library->)
+    return Table_Interpolation(cell->Output_Loading, cell->Input_Transition_Time, C1, C2, S1, S2, P0, P1, P2, P3);
 }
 
 void STA::Calculate_Cell_Delay(){
     Cell_Topological_Sort();
     for(const auto &cell : Cells_In_Topological_Order){
-        cout << cell->Name << endl;
-        Set_Cell_Input_Transition_Time(cell);
+        string cell_type_str;
+        if(cell->Type == NOR2X1) cell_type_str = "NOR2X1";
+        else if(cell->Type == INVX1) cell_type_str = "INVX1";
+        else if(cell->Type == NANDX1) cell_type_str = "NANDX1";
 
-        cout << cell->Input_Transition_Time << endl;
+        Set_Cell_Input_Transition_Time(cell);
+        // Find output 0 & 1, to determine which output transitionn time is worse
+        double cell_rising_time = Table_Look_Up(cell, "cell_rise");
+        double cell_falling_time = Table_Look_Up(cell, "cell_fall");
+        double output_falling_time = Table_Look_Up(cell, "fall_transition");
+        double output_rising_time = Table_Look_Up(cell, "rise_transition");
+        if(cell_falling_time > cell_rising_time){
+            cell->Output_Transition_Time = output_falling_time;
+            cell->Worst_Case_Output = false;
+        }
+        else{
+            cell->Output_Transition_Time = output_rising_time;
+            cell->Worst_Case_Output = true;
+        }
+        cout << cell->Name << " " << cell_type_str << " in slew " << cell->Input_Transition_Time << " out load " << cell->Output_Loading << " worst out: " << cell->Worst_Case_Output << " outptu trans time: " << cell->Output_Transition_Time << endl;
     }
 }

@@ -12,9 +12,10 @@ Library::~Library(){
 }
 
 // Getter
-const Cell_LUT *Library::Get_Cell_LUT(const string &Cell_Name){
-    assert(Cell_LUT_Map.find(Cell_Name) != Cell_LUT_Map.find(Cell_Name) && "Cell name not found");
-    return Cell_LUT_Map[Cell_Name];
+const vector<double> &Library::Get_Cell_Table(const string &Cell_Name, const string &Table_Name){
+    assert(Cell_LUT_Map.find(Cell_Name) != Cell_LUT_Map.end() && "Cell name not found");
+    assert(Cell_LUT_Map[Cell_Name]->Look_Up_Tables.find(Table_Name) != Cell_LUT_Map[Cell_Name]->Look_Up_Tables.end() && "Table name not found");
+    return Cell_LUT_Map[Cell_Name]->Look_Up_Tables[Table_Name];
 }
 
 // cout Library
