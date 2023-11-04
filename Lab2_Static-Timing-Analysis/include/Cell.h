@@ -22,9 +22,8 @@ class Cell{
         bool Worst_Case_Output;
         double Propagation_Delay;
         double Delay;   // The delay from input to this cell (without propagation delay of this cell)
-
-        double Longest_Delay;
-        Cell *Longest_Delay_Prev_Cell;
+        double Longest_Delay;   // Delay + Propagation Delay
+        Cell *Longest_Path_Prev_Cell;
     
     public:
         // Constructor & Destructor

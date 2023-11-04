@@ -28,16 +28,24 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 check:
-	$(CHECKCC) $(CHECKFLAGS)
+	$(CHECKCC) $(CHECKFLAGS) ./$(TARGET) Test_Case/c17.v -l Test_Case/test_lib.lib
 
 example:
 	./$(TARGET) Test_Case/example.v -l Test_Case/test_lib.lib
+	diff -w --ignore-blank-lines 0811562_example_load.txt Test_Case/golden/golden_example_load.txt
+	diff -w --ignore-blank-lines 0811562_example_delay.txt Test_Case/golden/golden_example_delay.txt
+	diff -w --ignore-blank-lines 0811562_example_path.txt Test_Case/golden/golden_example_path.txt
 
 c17:
 	./$(TARGET) Test_Case/c17.v -l Test_Case/test_lib.lib
-
+	diff -w --ignore-blank-lines 0811562_c17_load.txt Test_Case/golden/golden_c17_load.txt
+	diff -w --ignore-blank-lines 0811562_c17_delay.txt Test_Case/golden/golden_c17_delay.txt
+	diff -w --ignore-blank-lines 0811562_c17_path.txt Test_Case/golden/golden_c17_path_1.txt
 c432:
 	./$(TARGET) Test_Case/c432.v -l Test_Case/test_lib.lib
+	diff -w --ignore-blank-lines 0811562_c432_load.txt Test_Case/golden/golden_c432_load.txt
+	diff -w --ignore-blank-lines 0811562_c432_delay.txt Test_Case/golden/golden_c432_delay.txt
+	diff -w --ignore-blank-lines 0811562_c432_path.txt Test_Case/golden/golden_c432_path.txt
 
 clean:
-	rm -rf $(OBJDIR) $(TARGET) *delay* *load*
+	rm -rf $(OBJDIR) $(TARGET) *delay* *load* *path*

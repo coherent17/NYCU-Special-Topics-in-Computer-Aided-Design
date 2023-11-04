@@ -241,7 +241,7 @@ void STA::Dump_Output_Loading(){
     }
     sort(Sorted_Cells.begin(), Sorted_Cells.end(), cell_cmp);
     for(const auto &cell: Sorted_Cells){
-        fout << cell->Name << " " << fixed << setprecision(6) << cell->Output_Loading << endl;
+        fout << cell->Name << " " << fixed << setprecision(6) << cell->Output_Loading * 1000000 / 1000000 << endl;
     }
     fout.close();
 }
@@ -294,11 +294,13 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cell_Connections.second;
             input_transition_time = pre_cell1->Output_Transition_Time;
             cell->Delay = pre_cell1->Delay + pre_cell1->Propagation_Delay + WIRE_DELAY;
+            cell->Longest_Path_Prev_Cell = pre_cell1;
         } 
         else if(cell->Input_Nets[0]->Type != input && cell->Input_Nets[1]->Type == input){
             Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cell_Connections.second;
             input_transition_time = pre_cell0->Output_Transition_Time;
             cell->Delay = pre_cell0->Delay + pre_cell0->Propagation_Delay + WIRE_DELAY;
+            cell->Longest_Path_Prev_Cell = pre_cell0;
         } 
         else{
             Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cell_Connections.second;
@@ -308,10 +310,12 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             if(pre_cell0_arrival_time > pre_cell1_arrival_time){
                 input_transition_time = pre_cell0->Output_Transition_Time;
                 cell->Delay = pre_cell0_arrival_time;
+                cell->Longest_Path_Prev_Cell = pre_cell0;
             }
             else{
                 input_transition_time = pre_cell1->Output_Transition_Time;
                 cell->Delay = pre_cell1_arrival_time;
+                cell->Longest_Path_Prev_Cell = pre_cell1;
             }
         }
     }
@@ -325,6 +329,7 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             Cell *pre_cell = cell->Input_Nets[0]->Input_Cell_Connections.second;
             input_transition_time = pre_cell->Output_Transition_Time;
             cell->Delay = pre_cell->Delay + pre_cell->Propagation_Delay + WIRE_DELAY;
+            cell->Longest_Path_Prev_Cell = pre_cell;
         }
     }
     else abort();
@@ -390,11 +395,13 @@ void STA::Calculate_Cell_Delay(){
         if(cell_falling_time > cell_rising_time){
             cell->Propagation_Delay = cell_falling_time;
             cell->Output_Transition_Time = output_falling_time;
+            cell->Longest_Delay = cell->Delay + cell->Propagation_Delay;
             cell->Worst_Case_Output = false;
         }
         else{
             cell->Propagation_Delay = cell_rising_time;
             cell->Output_Transition_Time = output_rising_time;
+            cell->Longest_Delay = cell->Delay + cell->Propagation_Delay;
             cell->Worst_Case_Output = true;
         }
     }
@@ -420,32 +427,61 @@ void STA::Dump_Cell_Delay(){
 }
 
 void STA::Find_Longest_Delay_And_Path(){
-    for(const auto &cell : Cells_In_Topological_Order){
-        for(const auto &net : cell->Input_Nets){
-            Cell *prev_cell = net->Input_Cell_Connections.second;
-            if(prev_cell == nullptr) continue;
-            if(prev_cell->Longest_Delay + prev_cell->Output_Transition_Time + WIRE_DELAY > cell->Longest_Delay){
-                cell->Longest_Delay = prev_cell->Longest_Delay + prev_cell->Output_Transition_Time + WIRE_DELAY;
-                cell->Longest_Delay_Prev_Cell = prev_cell;
-            }
+    double Max_Longest_Delay = INT_MIN;
+    Cell *Max_Longest_Cell = nullptr;
+    for(const auto &cell: Primary_Output_Cells){
+        if(cell->Longest_Delay > Max_Longest_Delay){
+            Max_Longest_Delay = cell->Longest_Delay;
+            Max_Longest_Cell = cell;
         }
     }
-
-    for(const auto &cell: Primary_Output_Cells){
-        Cell *temp = cell;
-        while(temp->Longest_Delay_Prev_Cell != nullptr){
-            cout << temp->Name << " " << temp->Delay + temp->Propagation_Delay << endl;
-            temp = temp->Longest_Delay_Prev_Cell;
+    Longest_Delay = Max_Longest_Cell->Longest_Delay;
+    Cell *temp = Max_Longest_Cell;
+    while(temp != nullptr){
+        cout << *temp << endl;
+        Longest_Path.emplace(Longest_Path.begin(), temp->Output_Net->Name);
+        if(temp->Longest_Path_Prev_Cell == nullptr){
+            Longest_Path.emplace(Longest_Path.begin(), temp->Input_Nets[0]->Name);
         }
-        cout << temp->Name << " " << temp->Delay + temp->Propagation_Delay << endl;
-        cout << endl << endl;
+        temp = temp->Longest_Path_Prev_Cell;
     }
 }
 
 void STA::Find_Shortest_Delay_And_Path(){
-
+    double Min_Longest_Delay = INT_MAX;
+    Cell *Min_Longest_Cell = nullptr;
+    for(const auto &cell: Primary_Output_Cells){
+        if(cell->Longest_Delay < Min_Longest_Delay){
+            Min_Longest_Delay = cell->Longest_Delay;
+            Min_Longest_Cell = cell;
+        }
+    }
+    Shortest_Delay = Min_Longest_Cell->Longest_Delay;
+    Cell *temp = Min_Longest_Cell;
+    while(temp != nullptr){
+        cout << *temp << endl;
+        Shortest_Path.emplace(Shortest_Path.begin(), temp->Output_Net->Name);
+        if(temp->Longest_Path_Prev_Cell == nullptr){
+            Shortest_Path.emplace(Shortest_Path.begin(), temp->Input_Nets[0]->Name);
+        }
+        temp = temp->Longest_Path_Prev_Cell;
+    }
 }
 
 void STA::Dump_Longest_And_Shortest_Delay_And_Path(){
+    ofstream fout(string(STUDENT_ID) + "_" + Design_Name + "_path.txt");
+    fout << "Longest delay = " << fixed << setprecision(6) << Longest_Delay << ", the path is: ";
+    for(size_t i = 0; i < Longest_Path.size(); i++){
+        fout << Longest_Path[i];
+        if(i != Longest_Path.size() - 1) fout << " -> ";
+    }
+    fout << endl;
 
+    fout << "Shortest delay = " << fixed << setprecision(6) << Shortest_Delay << ", the path is: ";
+    for(size_t i = 0; i < Shortest_Path.size(); i++){
+        fout << Shortest_Path[i];
+        if(i != Shortest_Path.size() - 1) fout << " -> ";
+    }
+    fout << endl;
+    fout.close();
 }
