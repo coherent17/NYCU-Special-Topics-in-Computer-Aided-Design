@@ -23,8 +23,6 @@ class Cell{
         double Propagation_Delay;
         double Delay;   // The delay from input to this cell (without propagation delay of this cell)
 
-        double Shortest_Delay;
-        Cell *Shortest_Delay_Prev_Cell;
         double Longest_Delay;
         Cell *Longest_Delay_Prev_Cell;
     

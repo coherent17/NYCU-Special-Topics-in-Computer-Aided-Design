@@ -40,4 +40,4 @@ c432:
 	./$(TARGET) Test_Case/c432.v -l Test_Case/test_lib.lib
 
 clean:
-	rm -rf $(OBJDIR) $(TARGET)
+	rm -rf $(OBJDIR) $(TARGET) *delay* *load*

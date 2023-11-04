@@ -18,6 +18,7 @@ class STA{
         unordered_map<string, Net *> Nets;
         size_t Num_Cell;
         size_t Num_Net;
+        vector<Cell *> Primary_Output_Cells;
 
         // For step 2 
         vector<Cell *> Cells_In_Topological_Order;

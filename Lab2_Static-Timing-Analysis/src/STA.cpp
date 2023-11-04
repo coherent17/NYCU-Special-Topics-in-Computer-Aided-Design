@@ -174,7 +174,10 @@ void STA::Parse_Netlist(const char *netlist_filename){
                 if(pin_name == "ZN"){
                     Nets[pin_connect_net_name]->Input_Cell_Connections = make_pair(pin_name, cell);
                     cell->Output_Net = Nets[pin_connect_net_name];
-                    if(cell->Output_Net->Type == output) cell->Output_Loading = PRIMARY_OUTPUT_LOADING;
+                    if(cell->Output_Net->Type == output){
+                        cell->Output_Loading = PRIMARY_OUTPUT_LOADING;
+                        Primary_Output_Cells.emplace_back(cell);
+                    }
                 }
                 else if(pin_name == "A1" || pin_name == "A2" || pin_name == "I"){
                     Nets[pin_connect_net_name]->Output_Cell_Connections.emplace_back(make_pair(pin_name, cell));
@@ -421,14 +424,21 @@ void STA::Find_Longest_Delay_And_Path(){
         for(const auto &net : cell->Input_Nets){
             Cell *prev_cell = net->Input_Cell_Connections.second;
             if(prev_cell == nullptr) continue;
-            if(prev_cell->Delay + prev_cell->Propagation_Delay + prev_cell->Output_Transition_Time + WIRE_DELAY > cell->Longest_Delay){
-                cell->Longest_Delay = prev_cell->Delay + prev_cell->Propagation_Delay + prev_cell->Output_Transition_Time + WIRE_DELAY;
+            if(prev_cell->Longest_Delay + prev_cell->Output_Transition_Time + WIRE_DELAY > cell->Longest_Delay){
+                cell->Longest_Delay = prev_cell->Longest_Delay + prev_cell->Output_Transition_Time + WIRE_DELAY;
                 cell->Longest_Delay_Prev_Cell = prev_cell;
             }
         }
     }
-    for(const auto &cell : Cells_In_Topological_Order){
-        cout << cell->Name << " " << cell->Longest_Delay << endl;
+
+    for(const auto &cell: Primary_Output_Cells){
+        Cell *temp = cell;
+        while(temp->Longest_Delay_Prev_Cell != nullptr){
+            cout << temp->Name << " " << temp->Delay + temp->Propagation_Delay << endl;
+            temp = temp->Longest_Delay_Prev_Cell;
+        }
+        cout << temp->Name << " " << temp->Delay + temp->Propagation_Delay << endl;
+        cout << endl << endl;
     }
 }
 

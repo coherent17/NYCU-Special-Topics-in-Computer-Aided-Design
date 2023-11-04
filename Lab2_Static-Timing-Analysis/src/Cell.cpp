@@ -13,8 +13,6 @@ Cell::Cell(string Name, Cell_Type Type){
     this->Output_Transition_Time = 0;
     this->Propagation_Delay = 0;
     this->Delay = 0;
-    this->Shortest_Delay = INT_MAX;
-    this->Shortest_Delay_Prev_Cell = nullptr;
     this->Longest_Delay = INT_MIN;
     this->Longest_Delay_Prev_Cell = nullptr;
 }
@@ -42,5 +40,10 @@ ostream &operator<<(ostream &out, const Cell &cell) {
         out << "\tOutput Net: None" << endl;
     }
     out << "\tOutput Loading: " << fixed << setprecision(6) << cell.Output_Loading << endl;
+    out << "\tInput Transition Time: " << fixed << setprecision(6) << cell.Input_Transition_Time << endl;
+    out << "\tOutput Transition Time: " << fixed << setprecision(6) << cell.Output_Transition_Time << endl;
+    out << "\tDelay: " << fixed << setprecision(6) << cell.Delay << endl;
+    out << "\tPropagation Delay: " << fixed << setprecision(6) << cell.Propagation_Delay << endl;
+    out << "\tLongest Delay: " << fixed << setprecision(6) << cell.Longest_Delay << endl;
     return out;
 }
