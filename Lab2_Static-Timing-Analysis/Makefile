@@ -47,5 +47,26 @@ c432:
 	diff -w --ignore-blank-lines 0811562_c432_delay.txt Test_Case/golden/golden_c432_delay.txt
 	diff -w --ignore-blank-lines 0811562_c432_path.txt Test_Case/golden/golden_c432_path.txt
 
+c17_comment:
+	./$(TARGET) Test_Case/c17_comment.v -l Test_Case/test_lib.lib
+	diff -w --ignore-blank-lines 0811562_c17_comment_load.txt Test_Case/golden/golden_c17_load.txt
+	diff -w --ignore-blank-lines 0811562_c17_comment_delay.txt Test_Case/golden/golden_c17_delay.txt
+	diff -w --ignore-blank-lines 0811562_c17_comment_path.txt Test_Case/golden/golden_c17_path_1.txt
+
+NAND:
+	./$(TARGET) Test_Case/NAND2.v -l Test_Case/test_lib.lib
+
+NOR:
+	./$(TARGET) Test_Case/NOR2.v -l Test_Case/test_lib.lib
+
+INV:
+	./$(TARGET) Test_Case/INV.v -l Test_Case/test_lib.lib
+
+AOI22:
+	./$(TARGET) Test_Case/AOI22.v -l Test_Case/test_lib.lib
+
+c17_modified:
+	./$(TARGET) Test_Case/c17_modified.v -l Test_Case/test_lib.lib
+
 clean:
 	rm -rf $(OBJDIR) $(TARGET) *delay* *load* *path*
