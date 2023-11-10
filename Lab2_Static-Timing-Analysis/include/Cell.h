@@ -15,15 +15,15 @@ class Cell{
         Cell_Type Type;
         vector<Net *> Input_Nets;
         Net *Output_Net;
-        double Output_Loading;
         size_t In_Degree;
+        double Output_Loading;
         double Input_Transition_Time;
         double Output_Transition_Time;
         bool Worst_Case_Output;
         double Propagation_Delay;
-        double Delay;   // The delay from input to this cell (without propagation delay of this cell)
-        double Longest_Delay;   // Delay + Propagation Delay
-        Cell *Longest_Path_Prev_Cell;
+        double Arrival_Time;
+        double Longest_Delay;   // Arrival Time + Propagation Delay
+        Cell *Prev_Cell;
     
     public:
         // Constructor & Destructor

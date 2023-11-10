@@ -11,8 +11,8 @@ class Net{
     public:
         string Name;
         Net_Type Type;
-        pair<string, Cell *> Input_Cell_Connections;
-        vector<pair<string, Cell *>> Output_Cell_Connections;
+        pair<string, Cell *> Input_Cells;
+        vector<pair<string, Cell *>> Output_Cells;
 
     public:
         // Constructor & Destructor

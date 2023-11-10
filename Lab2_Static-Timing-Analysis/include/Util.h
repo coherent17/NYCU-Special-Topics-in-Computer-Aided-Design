@@ -4,6 +4,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define LUT_ROW_SIZE 7
+#define LUT_COL_SIZE 7
 #define STUDENT_ID "0811562"
 #define PRIMARY_OUTPUT_LOADING 0.03
 #define WIRE_DELAY 0.005

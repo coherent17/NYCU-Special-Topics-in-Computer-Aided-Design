@@ -1,20 +1,21 @@
 #include "Cell.h"
 
 // Constructor & Destructor
-Cell::Cell(string Name, Cell_Type Type){
-    this->Name = Name;
-    this->Type = Type;
-    this->Output_Loading = 0;
+Cell::Cell(string Name, Cell_Type Type):
+    Name(Name),
+    Type(Type),
+    In_Degree(0),
+    Output_Loading(0),
+    Input_Transition_Time(0),
+    Output_Transition_Time(0),
+    Propagation_Delay(0),
+    Arrival_Time(0),
+    Longest_Delay(INT_MIN),
+    Prev_Cell(nullptr)
+{
     smatch match;
     regex_search(Name, match, Number_Pattern);
     this->Instance_Number = stoi(match.str());
-    this->In_Degree = 0;
-    this->Input_Transition_Time = 0;
-    this->Output_Transition_Time = 0;
-    this->Propagation_Delay = 0;
-    this->Delay = 0;
-    this->Longest_Delay = INT_MIN;
-    Longest_Path_Prev_Cell = nullptr;
 }
 
 Cell::~Cell(){
@@ -42,12 +43,12 @@ ostream &operator<<(ostream &out, const Cell &cell) {
     out << "\tOutput Loading: " << fixed << setprecision(6) << cell.Output_Loading << endl;
     out << "\tInput Transition Time: " << fixed << setprecision(6) << cell.Input_Transition_Time << endl;
     out << "\tOutput Transition Time: " << fixed << setprecision(6) << cell.Output_Transition_Time << endl;
-    out << "\tDelay: " << fixed << setprecision(6) << cell.Delay << endl;
+    out << "\tArrival Time: " << fixed << setprecision(6) << cell.Arrival_Time << endl;
     out << "\tPropagation Delay: " << fixed << setprecision(6) << cell.Propagation_Delay << endl;
     out << "\tLongest Delay: " << fixed << setprecision(6) << cell.Longest_Delay << endl;
     out << "\tPrev Cell: ";
-    if(cell.Longest_Path_Prev_Cell){
-        out << cell.Longest_Path_Prev_Cell->Name << endl;
+    if(cell.Prev_Cell){
+        out << cell.Prev_Cell->Name << endl;
     }
     else out << "NULL" << endl;
     return out;

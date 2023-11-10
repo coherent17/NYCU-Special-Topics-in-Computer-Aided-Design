@@ -1,10 +1,14 @@
 #include "STA.h"
 
 // Constructor & Destructor
-STA::STA(){
+STA::STA():
+    Design_Name(""),
+    Num_Cells(0),
+    Num_Nets(0),
+    Longest_Delay(INT_MIN),
+    Shortest_Delay(INT_MAX)
+{
     this->library = new Library();
-    this->Num_Cell = 0;
-    this->Num_Net = 0;
 }
 
 STA::~STA(){
@@ -172,7 +176,7 @@ void STA::Parse_Netlist(const char *netlist_filename){
                 string pin_connect_net_name = match.str();
                 line = match.suffix().str();
                 if(pin_name == "ZN"){
-                    Nets[pin_connect_net_name]->Input_Cell_Connections = make_pair(pin_name, cell);
+                    Nets[pin_connect_net_name]->Input_Cells = make_pair(pin_name, cell);
                     cell->Output_Net = Nets[pin_connect_net_name];
                     if(cell->Output_Net->Type == output){
                         cell->Output_Loading = PRIMARY_OUTPUT_LOADING;
@@ -180,7 +184,7 @@ void STA::Parse_Netlist(const char *netlist_filename){
                     }
                 }
                 else if(pin_name == "A1" || pin_name == "A2" || pin_name == "I"){
-                    Nets[pin_connect_net_name]->Output_Cell_Connections.emplace_back(make_pair(pin_name, cell));
+                    Nets[pin_connect_net_name]->Output_Cells.emplace_back(make_pair(pin_name, cell));
                     cell->Input_Nets.emplace_back(Nets[pin_connect_net_name]);
                 }
                 else{
@@ -189,14 +193,18 @@ void STA::Parse_Netlist(const char *netlist_filename){
             }
         }
     }
-    Num_Cell = Cells.size();
-    Num_Net = Nets.size();
+    Num_Cells = Cells.size();
+    Num_Nets = Nets.size();
+}
+
+void STA::Print_Library(){
+    cout << *library << endl;
 }
 
 void STA::Print_Netlist(){
     cout << "Design Name: " << Design_Name << endl;
-    cout << "Num Cells: " << Num_Cell << endl;
-    cout << "Num Nets: " << Num_Net << endl;
+    cout << "Num Cells: " << Num_Cells << endl;
+    cout << "Num Nets: " << Num_Nets << endl;
     cout << "Cells: " << endl;
     for (const auto &cell : Cells) {
         cout << *(cell.second) << endl;
@@ -213,7 +221,7 @@ void STA::Calculate_Output_Loading(){
         Cell *cell = pair1.second;
         Net *Output_Net = cell->Output_Net;
         double Output_Loading = cell->Output_Loading;
-        for(const auto & pair2: Output_Net->Output_Cell_Connections){
+        for(const auto & pair2: Output_Net->Output_Cells){
             string pin_name = pair2.first;
             Cell_Type type = pair2.second->Type;
             string cell_type_str;
@@ -241,7 +249,7 @@ void STA::Dump_Output_Loading(){
     }
     sort(Sorted_Cells.begin(), Sorted_Cells.end(), cell_cmp);
     for(const auto &cell: Sorted_Cells){
-        fout << cell->Name << " " << fixed << setprecision(6) << cell->Output_Loading * 1000000 / 1000000 << endl;
+        fout << cell->Name << " " << fixed << setprecision(6) << cell->Output_Loading << endl;
     }
     fout.close();
 }
@@ -273,13 +281,13 @@ void STA::Cell_Topological_Sort(){
         Process_Queue.pop();
         Cells_In_Topological_Order.emplace_back(curr_cell);
         Net *curr_cell_output_net = curr_cell->Output_Net;
-        for(const auto &connection : curr_cell_output_net->Output_Cell_Connections){
+        for(const auto &connection : curr_cell_output_net->Output_Cells){
             Cell *curr_cell_output_cell = connection.second;
             (curr_cell_output_cell->In_Degree)--;
             if(curr_cell_output_cell->In_Degree == 0) Process_Queue.push(curr_cell_output_cell);
         }
     }
-    assert(Cells_In_Topological_Order.size() == Num_Cell);
+    assert(Cells_In_Topological_Order.size() == Num_Cells);
 }
 
 void STA::Set_Cell_Input_Transition_Time(Cell *cell){
@@ -288,34 +296,35 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
         assert(cell->Input_Nets.size() == 2);
         if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type == input){
             input_transition_time = 0;
-            cell->Delay = 0;
+            cell->Arrival_Time = 0;
         }
         else if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type != input){
-            Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cell_Connections.second;
+            Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
             input_transition_time = pre_cell1->Output_Transition_Time;
-            cell->Delay = pre_cell1->Delay + pre_cell1->Propagation_Delay + WIRE_DELAY;
-            cell->Longest_Path_Prev_Cell = pre_cell1;
+            cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay + WIRE_DELAY;
+            cell->Prev_Cell = pre_cell1;
         } 
         else if(cell->Input_Nets[0]->Type != input && cell->Input_Nets[1]->Type == input){
-            Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cell_Connections.second;
+            Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
             input_transition_time = pre_cell0->Output_Transition_Time;
-            cell->Delay = pre_cell0->Delay + pre_cell0->Propagation_Delay + WIRE_DELAY;
-            cell->Longest_Path_Prev_Cell = pre_cell0;
+            cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay + WIRE_DELAY;
+            cell->Prev_Cell = pre_cell0;
         } 
         else{
-            Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cell_Connections.second;
-            Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cell_Connections.second;
-            double pre_cell0_arrival_time = pre_cell0->Delay + pre_cell0->Propagation_Delay + WIRE_DELAY;
-            double pre_cell1_arrival_time = pre_cell1->Delay + pre_cell1->Propagation_Delay + WIRE_DELAY;
+            Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
+            Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
+            assert(pre_cell0 != nullptr && pre_cell1 != nullptr);
+            double pre_cell0_arrival_time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay + WIRE_DELAY;
+            double pre_cell1_arrival_time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay + WIRE_DELAY;
             if(pre_cell0_arrival_time > pre_cell1_arrival_time){
                 input_transition_time = pre_cell0->Output_Transition_Time;
-                cell->Delay = pre_cell0_arrival_time;
-                cell->Longest_Path_Prev_Cell = pre_cell0;
+                cell->Arrival_Time = pre_cell0_arrival_time;
+                cell->Prev_Cell = pre_cell0;
             }
             else{
                 input_transition_time = pre_cell1->Output_Transition_Time;
-                cell->Delay = pre_cell1_arrival_time;
-                cell->Longest_Path_Prev_Cell = pre_cell1;
+                cell->Arrival_Time = pre_cell1_arrival_time;
+                cell->Prev_Cell = pre_cell1;
             }
         }
     }
@@ -323,13 +332,14 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
         assert(cell->Input_Nets.size() == 1);
         if(cell->Input_Nets[0]->Type == input){
             input_transition_time = 0;
-            cell->Delay = 0;
+            cell->Arrival_Time = 0;
         }
         else{
-            Cell *pre_cell = cell->Input_Nets[0]->Input_Cell_Connections.second;
+            Cell *pre_cell = cell->Input_Nets[0]->Input_Cells.second;
+            assert(pre_cell != nullptr);
             input_transition_time = pre_cell->Output_Transition_Time;
-            cell->Delay = pre_cell->Delay + pre_cell->Propagation_Delay + WIRE_DELAY;
-            cell->Longest_Path_Prev_Cell = pre_cell;
+            cell->Arrival_Time = pre_cell->Arrival_Time + pre_cell->Propagation_Delay + WIRE_DELAY;
+            cell->Prev_Cell = pre_cell;
         }
     }
     else abort();
@@ -362,18 +372,21 @@ double STA::Table_Look_Up(Cell *cell, const string &Table_Name){
 
     // find the require number for table interpolation
     const vector<double> Table = library->Get_Cell_Table(cell_type_str, Table_Name);
+    assert(Table.size() == LUT_ROW_SIZE * LUT_COL_SIZE);
+
+    // Out of the table range => extrapolation
     if(index_1_idx == 0) index_1_idx = 1;
     if(index_2_idx == 0) index_2_idx = 1;
-    if(index_1_idx == 7) index_1_idx = 6;
-    if(index_2_idx == 7) index_2_idx = 6;
+    if(index_1_idx == LUT_COL_SIZE) index_1_idx = LUT_COL_SIZE - 1;
+    if(index_2_idx == LUT_ROW_SIZE) index_2_idx = LUT_ROW_SIZE - 1;
     double C1 = library->Index_1[index_1_idx - 1];
     double C2 = library->Index_1[index_1_idx];
     double S1 = library->Index_2[index_2_idx - 1];
     double S2 = library->Index_2[index_2_idx];
-    double P0 = Table[(index_1_idx - 1) + 7 * (index_2_idx - 1)];
-    double P1 = Table[(index_1_idx) + 7 * (index_2_idx)];
-    double P2 = Table[(index_1_idx - 1) + 7 * (index_2_idx)];
-    double P3 = Table[(index_1_idx) + 7 * (index_2_idx - 1)];
+    double P0 = Table[(index_1_idx - 1) + LUT_COL_SIZE * (index_2_idx - 1)];
+    double P1 = Table[(index_1_idx) + LUT_COL_SIZE * (index_2_idx)];
+    double P2 = Table[(index_1_idx - 1) + LUT_COL_SIZE * (index_2_idx)];
+    double P3 = Table[(index_1_idx) + LUT_COL_SIZE * (index_2_idx - 1)];
     
     return Table_Interpolation(cell->Output_Loading, cell->Input_Transition_Time, C1, C2, S1, S2, P0, P1, P2, P3);
 }
@@ -385,6 +398,7 @@ void STA::Calculate_Cell_Delay(){
         if(cell->Type == NOR2X1) cell_type_str = "NOR2X1";
         else if(cell->Type == INVX1) cell_type_str = "INVX1";
         else if(cell->Type == NANDX1) cell_type_str = "NANDX1";
+        else abort();
 
         Set_Cell_Input_Transition_Time(cell);
         // Find output 0 & 1, to determine which output transitionn time is worse
@@ -395,13 +409,13 @@ void STA::Calculate_Cell_Delay(){
         if(cell_falling_time > cell_rising_time){
             cell->Propagation_Delay = cell_falling_time;
             cell->Output_Transition_Time = output_falling_time;
-            cell->Longest_Delay = cell->Delay + cell->Propagation_Delay;
+            cell->Longest_Delay = cell->Arrival_Time + cell->Propagation_Delay;
             cell->Worst_Case_Output = false;
         }
         else{
             cell->Propagation_Delay = cell_rising_time;
             cell->Output_Transition_Time = output_rising_time;
-            cell->Longest_Delay = cell->Delay + cell->Propagation_Delay;
+            cell->Longest_Delay = cell->Arrival_Time + cell->Propagation_Delay;
             cell->Worst_Case_Output = true;
         }
     }
@@ -438,12 +452,11 @@ void STA::Find_Longest_Delay_And_Path(){
     Longest_Delay = Max_Longest_Cell->Longest_Delay;
     Cell *temp = Max_Longest_Cell;
     while(temp != nullptr){
-        cout << *temp << endl;
         Longest_Path.emplace(Longest_Path.begin(), temp->Output_Net->Name);
-        if(temp->Longest_Path_Prev_Cell == nullptr){
+        if(temp->Prev_Cell == nullptr){
             Longest_Path.emplace(Longest_Path.begin(), temp->Input_Nets[0]->Name);
         }
-        temp = temp->Longest_Path_Prev_Cell;
+        temp = temp->Prev_Cell;
     }
 }
 
@@ -459,12 +472,11 @@ void STA::Find_Shortest_Delay_And_Path(){
     Shortest_Delay = Min_Longest_Cell->Longest_Delay;
     Cell *temp = Min_Longest_Cell;
     while(temp != nullptr){
-        cout << *temp << endl;
         Shortest_Path.emplace(Shortest_Path.begin(), temp->Output_Net->Name);
-        if(temp->Longest_Path_Prev_Cell == nullptr){
+        if(temp->Prev_Cell == nullptr){
             Shortest_Path.emplace(Shortest_Path.begin(), temp->Input_Nets[0]->Name);
         }
-        temp = temp->Longest_Path_Prev_Cell;
+        temp = temp->Prev_Cell;
     }
 }
 

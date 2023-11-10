@@ -16,8 +16,8 @@ class STA{
         Library *library;
         unordered_map<string, Cell *> Cells;
         unordered_map<string, Net *> Nets;
-        size_t Num_Cell;
-        size_t Num_Net;
+        size_t Num_Cells;
+        size_t Num_Nets;
         vector<Cell *> Primary_Output_Cells;
         vector<Cell *> Cells_In_Topological_Order;
         double Longest_Delay;
@@ -33,6 +33,7 @@ class STA{
         // Parser
         void Parse_Library(const char *library_filename);
         void Parse_Netlist(const char *netlist_filename);
+        void Print_Library();
         void Print_Netlist();
 
         // Step 1
