@@ -15,11 +15,19 @@ n11 , n12
 
 	output /*fdsg*//*htrghr*/ N22,
 	 	N/*;*/23;
+    /*
+        Hello
+        // World!
+    */
 // gthytjthgj juythjuhyfj
+
+    /*
+        Hello
+        // World!*/
     NOR2X1
-U8 (./*.A0(fdfsgsku*/A1(n8),   .A2(n9),  .ZN(N23));
-	  NOR2X1 U9 /*ffffgfg/*ddasdda*/(.A1(N2), /*sadsadas*/.A2(N7), .ZN(n9));//dhjikb/*
-	INVX1 U10 (.I(n10), /*AAAAdsadsadsad*/ .ZN(n8));   //dgbou/*fedfgg?*/
+U8 (./*(fdfsgsku*/A1(n8),   .A2(n9),  .ZN(N23));
+	  NOR2X1 U9 /*ffffgfg/*ddasdda*/(.A1(N2), /*stshrsrhadas*/.A2(N7), .ZN(n9));//dhjikb/*
+	INVX1 U10 (.I(n10), /*AAAAdsadsadsad*/ .ZN(n8));   //dghsrthrsu/*hstrtsrhrsgg?*/
     // dasdsadsadsad
             NANDX1 U11 (.A1(n11), .A2(n12),
              .ZN(N22)); //dsadsadsdsadsad
@@ -28,8 +36,8 @@ U8 (./*.A0(fdfsgsku*/A1(n8),   .A2(n9),  .ZN(N23));
       ggg
             NANDX1 U11 (.A1(n11), .A2(n12),
 /*
-  */;
-	    /*asdsadsadsadasdsadsa*/NANDX1 U13 (.A1(N6),
+  */;   //dshshshrshshf*/
+	    /*asdhtrshbsbshsa*/NANDX1 U13 (.A1(N6),
           .A2(N3), .ZN(n10));
-	NANDX1              U14    ( .A1(N1), .A2(N3), /*sadsadsadasdasd*/.ZN(n11));
+	NANDX1              U14    ( .A1(N1), .A2(N3), /*sagtrshyrjhrd*/.ZN(n11));
 endmodule

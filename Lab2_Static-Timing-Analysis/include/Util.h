@@ -35,7 +35,8 @@ const regex Table_Pattern("(^values)|(^\")");
 
 // The regular expression used to extract the pattern while parsing Netlist
 const regex Multi_Line_Regex("/\\*.*?\\*/");
-const regex Single_Line_Regex("//[^\x01]*\x01");
+const regex Single_Line_Regex("//(?![^/]*\\*/)[^\x01]*\x01");
+const regex Special_Single_Regex("//[^/]*\\*/");
 const regex Multi_Space_Pattern("(\\s+)");
 const regex Net_Type_Pattern("(input)|(output)|(wire)");
 const regex Cell_Type_Pattern("(NOR2X1)|(NANDX1)|(INVX1)");

@@ -139,7 +139,8 @@ void STA::Parse_Netlist(const char *netlist_filename){
         Verilog_Code.insert(found + 1, "\n");
         found += 2; // Move past the inserted '\n' to avoid infinite loop
     }
-
+    Verilog_Code = regex_replace(Verilog_Code, Special_Single_Regex, "");
+    
     //Start to parse the Netlist
     Cell *cell;
     Net *net;
