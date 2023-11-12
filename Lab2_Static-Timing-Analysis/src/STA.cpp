@@ -98,6 +98,7 @@ void STA::Parse_Library(const char *library_filename){
 
 
 void STA::Parse_Netlist(const char *netlist_filename){
+    // Find the Design Name
     this->netlist_filename = netlist_filename;
     string filename(netlist_filename);
     size_t Start_Index = filename.find_last_of("/");
@@ -108,11 +109,13 @@ void STA::Parse_Netlist(const char *netlist_filename){
     // Remove comment in verilog code
     string Verilog_Code, line;
     while(getline(netlist_file, line)){
-        Verilog_Code += line + "\n";
+        // Concat all verilog code and make sure remove "// comment"
+        line = regex_replace(line, Verilog_Single_Line_Pattern, "");
+        Verilog_Code += line;
     }
     netlist_file.close();
+    // Filter out the block comment
     string Clean_Verilog_Code = regex_replace(Verilog_Code, Verilog_Comment_Pattern, "");
-
     // Add proper new line to the clean verilog code
     size_t found = 0;
     // Find and insert '\n' after each ';'
@@ -120,7 +123,6 @@ void STA::Parse_Netlist(const char *netlist_filename){
         Clean_Verilog_Code.insert(found + 1, "\n");
         found += 2; // Move past the inserted '\n' to avoid infinite loop
     }
-
     // Start to parse the Netlist
     Cell *cell;
     Net *net;

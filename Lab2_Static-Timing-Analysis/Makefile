@@ -4,7 +4,7 @@ CFLAGS = -g -Wall -std=c++11 -I./include
 
 # Valgrind for memory issue
 CHECKCC = valgrind
-CHECKFLAGS = --leak-check=full -s --show-leak-kinds=all --track-origins=yes 
+CHECKFLAGS = -s --show-leak-kinds=all --track-origins=yes 
 
 
 # Source files and object files
@@ -28,7 +28,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 check:
-	$(CHECKCC) $(CHECKFLAGS) ./$(TARGET) Test_Case/c17.v -l Test_Case/test_lib.lib
+	$(CHECKCC) $(CHECKFLAGS) ./$(TARGET) Test_Case/High_Fan_Out.v -l Test_Case/test_lib.lib
 
 example:
 	./$(TARGET) Test_Case/example.v -l Test_Case/test_lib.lib
@@ -67,6 +67,9 @@ AOI22:
 
 c17_modified:
 	./$(TARGET) Test_Case/c17_modified.v -l Test_Case/test_lib.lib
+
+High_Fan_Out:
+	./$(TARGET) Test_Case/High_Fan_Out.v -l Test_Case/test_lib.lib
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET) *delay* *load* *path*

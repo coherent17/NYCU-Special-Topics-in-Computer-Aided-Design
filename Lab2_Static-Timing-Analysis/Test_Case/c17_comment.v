@@ -15,7 +15,6 @@ module c17 (N1, N2, N3, N6, N7, N22, N23);
     /*
     I hate STA
     // I hate comment
-    
     */
 	/*I hate STA*/NANDX1 U13 /*I hate STA*/(.A1(N6), .A2(N3), .    /*
     I hate STA
