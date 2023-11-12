@@ -104,32 +104,49 @@ void STA::Parse_Netlist(const char *netlist_filename){
     size_t Start_Index = filename.find_last_of("/");
     size_t End_Index = filename.find_last_of(".");
     Design_Name = filename.substr(Start_Index + 1, End_Index - Start_Index - 1);
-
     ifstream netlist_file(netlist_filename);
-    // Remove comment in verilog code
+    
+    // concat all of the verilog code together
     string Verilog_Code, line;
     while(getline(netlist_file, line)){
-        // Concat all verilog code and make sure remove "// comment"
-        line = regex_replace(line, Verilog_Single_Line_Pattern, "");
-        Verilog_Code += line;
+        Verilog_Code += line + " \n";
     }
     netlist_file.close();
-    // Filter out the block comment
-    string Clean_Verilog_Code = regex_replace(Verilog_Code, Verilog_Comment_Pattern, "");
-    // Add proper new line to the clean verilog code
+
+    // 5 Steps to remove comment (Single line comment & Multi line comment)
+    // <a> Remove /**/ comments in the same line
+    // <b> Substitute "\n" with "\x01", as the placeholder for new line character
+    // <c> Remove single line comments from // to "\x01"
+    // <d> Remove multi line comments /**/ cross different line
+    // <e> Substitute "\x01" with "" and insert "\n" when meet ";"
+
+    // <a> Remove /* ... */ comments in the same line
+    Verilog_Code = regex_replace(Verilog_Code, Multi_Line_Regex, "");
+
+    // <b> Substitute "\n" with "`"
+    replace(Verilog_Code.begin(), Verilog_Code.end(), '\n', '\x01');
+
+    // <c> Remove single line comments from // to "`"
+    Verilog_Code = regex_replace(Verilog_Code, Single_Line_Regex, "");
+
+    // <d> Remove multi line comments /**/ cross different line
+    Verilog_Code = regex_replace(Verilog_Code, Multi_Line_Regex, "");
+
+    // <e> Substitute "`" with "" and insert "\n" when meet ";"
+    Verilog_Code.erase(remove(Verilog_Code.begin(), Verilog_Code.end(), '\x01'), Verilog_Code.end());
     size_t found = 0;
-    // Find and insert '\n' after each ';'
-    while((found = Clean_Verilog_Code.find(';', found + 1)) != std::string::npos){
-        Clean_Verilog_Code.insert(found + 1, "\n");
+    while((found = Verilog_Code.find(';', found + 1)) != std::string::npos){
+        Verilog_Code.insert(found + 1, "\n");
         found += 2; // Move past the inserted '\n' to avoid infinite loop
     }
-    // Start to parse the Netlist
+
+    //Start to parse the Netlist
     Cell *cell;
     Net *net;
     Cell_Type cell_type;
     Net_Type net_type;
     smatch match;
-    stringstream ss(Clean_Verilog_Code);
+    stringstream ss(Verilog_Code);
     while(getline(ss, line)){
         // Remove the extra space
         line = regex_replace(line, Multi_Space_Pattern, " ");

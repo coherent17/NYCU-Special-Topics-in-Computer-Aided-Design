@@ -53,6 +53,12 @@ c17_comment:
 	diff -w --ignore-blank-lines 0811562_c17_comment_delay.txt Test_Case/golden/golden_c17_delay.txt
 	diff -w --ignore-blank-lines 0811562_c17_comment_path.txt Test_Case/golden/golden_c17_path_1.txt
 
+hellish:
+	./$(TARGET) Test_Case/hellish.v -l Test_Case/test_lib.lib
+	diff -w --ignore-blank-lines 0811562_hellish_load.txt Test_Case/golden/golden_c17_load.txt
+	diff -w --ignore-blank-lines 0811562_hellish_delay.txt Test_Case/golden/golden_c17_delay.txt
+	diff -w --ignore-blank-lines 0811562_hellish_path.txt Test_Case/golden/golden_c17_path_1.txt
+
 NAND:
 	./$(TARGET) Test_Case/NAND2.v -l Test_Case/test_lib.lib
 
