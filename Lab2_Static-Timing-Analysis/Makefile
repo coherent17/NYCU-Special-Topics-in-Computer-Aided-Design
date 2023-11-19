@@ -1,6 +1,6 @@
 # ompiler & Linker settings
 CC = g++
-CFLAGS = -g -Wall -std=c++11 -I./include
+CFLAGS = -g -Wall -DNDEBUG -O3 -std=c++11 -I./include
 
 # Valgrind for memory issue
 CHECKCC = valgrind
@@ -76,6 +76,9 @@ c17_modified:
 
 High_Fan_Out:
 	./$(TARGET) Test_Case/High_Fan_Out.v -l Test_Case/test_lib.lib
+
+Big_Circuit:
+	time ./$(TARGET) Test_Case/test_01.v -l Test_Case/test_lib.lib
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET) *delay* *load* *path*
