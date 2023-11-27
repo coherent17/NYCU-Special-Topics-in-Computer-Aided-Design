@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
     sta_manager.Calculate_Output_Loading();
     sta_manager.Dump_Output_Loading();
 
-    // Step2
+    // Step2, 3
     sta_manager.Calculate_Cell_Delay();
 
     return 0;

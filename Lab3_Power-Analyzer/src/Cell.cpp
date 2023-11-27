@@ -9,7 +9,9 @@ Cell::Cell(string Name, Cell_Type Type):
     Input_Transition_Time(0),
     Output_Transition_Time(0),
     Propagation_Delay(0),
-    Arrival_Time(0)
+    Arrival_Time(0),
+    Internal_Power(0),
+    Switching_Power(0)
 {
     smatch match;
     regex_search(Name, match, Number_Pattern);

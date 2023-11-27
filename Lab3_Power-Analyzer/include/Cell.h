@@ -21,6 +21,8 @@ class Cell{
         double Output_Transition_Time;
         double Propagation_Delay;
         double Arrival_Time;
+        double Internal_Power;
+        double Switching_Power;
 
     public:
         // Constructor & Destructor

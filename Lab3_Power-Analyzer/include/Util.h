@@ -9,6 +9,9 @@ using namespace std;
 #define STUDENT_ID "0811562"
 #define PRIMARY_OUTPUT_LOADING 0.03
 #define UNSET -1
+#define LOW 0
+#define HIGH 1
+#define VDD 0.9
 
 enum Cell_Type{
     NOR2X1,

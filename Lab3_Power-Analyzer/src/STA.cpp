@@ -326,6 +326,8 @@ void STA::Cell_Topological_Sort(){
 
 void STA::Set_Cell_Input_Transition_Time(Cell *cell){
     double input_transition_time = 0;
+    // NOR gate:
+    // cv: 1, ncv: 0
     if(cell->Type == NOR2X1){
         assert(cell->Input_Nets.size() == 2);
         if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type == input){
@@ -333,42 +335,56 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             cell->Arrival_Time = 0;
         }
         else if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type != input){
-            if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 0){
+            int input0 = cell->Input_Nets[0]->Logic_Value;
+            int input1 = cell->Input_Nets[1]->Logic_Value;
+
+            // 0 0
+            if(input0 == LOW && input1 == LOW){
                 Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
                 input_transition_time = pre_cell1->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
             }
-            else if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 1){
+            // 0 1
+            else if(input0 == LOW && input1 == HIGH){
                 Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
                 input_transition_time = pre_cell1->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
             }
-            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 0){
+            // 1 0
+            else if(input0 == HIGH && input1 == LOW){
                 input_transition_time = 0;
                 cell->Arrival_Time = 0;
             }
-            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 1){
+            // 1 1
+            else if(input0 == HIGH && input1 == HIGH){
                 input_transition_time = 0;
                 cell->Arrival_Time = 0;
             }
             else abort();
         }
         else if(cell->Input_Nets[0]->Type != input && cell->Input_Nets[1]->Type == input){
-            if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 0){
+            int input0 = cell->Input_Nets[0]->Logic_Value;
+            int input1 = cell->Input_Nets[1]->Logic_Value;
+
+            // 0 0
+            if(input0 == LOW && input1 == LOW){
                 Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
                 input_transition_time = pre_cell0->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             }
-            else if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 1){
+            // 0 1
+            else if(input0 == LOW && input1 == HIGH){
                 input_transition_time = 0;
                 cell->Arrival_Time = 0;
             }
-            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 0){
+            // 1 0
+            else if(input0 == HIGH && input1 == LOW){
                 Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
                 input_transition_time = pre_cell0->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             }
-            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 1){
+            // 1 1
+            else if(input0 == HIGH && input1 == HIGH){
                 input_transition_time = 0;
                 cell->Arrival_Time = 0;
             }
@@ -380,9 +396,11 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             assert(pre_cell0 != nullptr && pre_cell1 != nullptr);
             double pre_cell0_arrival_time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             double pre_cell1_arrival_time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
+            int input0 = cell->Input_Nets[0]->Logic_Value;
+            int input1 = cell->Input_Nets[1]->Logic_Value;
 
             // 0 0
-            if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 0){
+            if(input0 == LOW && input1 == LOW){
                 if(pre_cell0_arrival_time > pre_cell1_arrival_time){
                     input_transition_time = pre_cell0->Output_Transition_Time;
                     cell->Arrival_Time = pre_cell0_arrival_time;
@@ -393,17 +411,17 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
                 }
             }
             // 0 1
-            else if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 1){
+            else if(input0 == LOW && input1 == HIGH){
                 input_transition_time = pre_cell1->Output_Transition_Time;
-                cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
+                cell->Arrival_Time = pre_cell1_arrival_time;
             }
             // 1 0
-            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 0){
+            else if(input0 == HIGH && input1 == LOW){
                 input_transition_time = pre_cell0->Output_Transition_Time;
-                cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
+                cell->Arrival_Time = pre_cell0_arrival_time;
             }
             // 1 1
-            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 1){
+            else if(input0 == HIGH && input1 == HIGH){
                 if(pre_cell0_arrival_time < pre_cell1_arrival_time){
                     input_transition_time = pre_cell0->Output_Transition_Time;
                     cell->Arrival_Time = pre_cell0_arrival_time;
@@ -416,6 +434,8 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             else abort();
         }
     }
+    // NAND gate:
+    // cv: 0, ncv: 1
     else if(cell->Type == NANDX1){
         assert(cell->Input_Nets.size() == 2);
         if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type == input){
@@ -423,36 +443,60 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             cell->Arrival_Time = 0;
         }
         else if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type != input){
-            if(cell->Input_Nets[0]->Logic_Value == 0){
+            int input0 = cell->Input_Nets[0]->Logic_Value;
+            int input1 = cell->Input_Nets[1]->Logic_Value;
+
+            // 0 0
+            if(input0 == LOW && input1 == LOW){
                 input_transition_time = 0;
                 cell->Arrival_Time = 0;
             }
-            else if(cell->Input_Nets[1]->Logic_Value == 0){
+            // 0 1
+            else if(input0 == LOW && input1 == HIGH){
+                input_transition_time = 0;
+                cell->Arrival_Time = 0;
+            }
+            // 1 0
+            else if(input0 == HIGH && input1 == LOW){
                 Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
                 input_transition_time = pre_cell1->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
             }
-            else{
+            // 1 1
+            else if(input0 == HIGH && input1 == HIGH){
                 Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
                 input_transition_time = pre_cell1->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
             }
+            else abort();
         }
         else if(cell->Input_Nets[0]->Type != input && cell->Input_Nets[1]->Type == input){
-            if(cell->Input_Nets[1]->Logic_Value == 0){
+            int input0 = cell->Input_Nets[0]->Logic_Value;
+            int input1 = cell->Input_Nets[1]->Logic_Value;
+            
+            // 0 0
+            if(input0 == LOW && input1 == LOW){
                 input_transition_time = 0;
                 cell->Arrival_Time = 0;
             }
-            else if(cell->Input_Nets[0]->Logic_Value == 0){
+            // 0 1
+            else if(input0 == LOW && input1 == HIGH){
                 Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
                 input_transition_time = pre_cell0->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             }
-            else{
+            // 1 0
+            else if(input0 == HIGH && input1 == LOW){
+                input_transition_time = 0;
+                cell->Arrival_Time = 0;
+            }
+            // 1 1
+            else if(input0 == HIGH && input1 == HIGH){
                 Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
                 input_transition_time = pre_cell0->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             }
+            else abort();
         }
         else{
             Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
@@ -460,9 +504,11 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             assert(pre_cell0 != nullptr && pre_cell1 != nullptr);
             double pre_cell0_arrival_time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             double pre_cell1_arrival_time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
+            int input0 = cell->Input_Nets[0]->Logic_Value;
+            int input1 = cell->Input_Nets[1]->Logic_Value;
 
             // 0 0
-            if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 0){
+            if(input0 == LOW && input1 == LOW){
                 if(pre_cell0_arrival_time < pre_cell1_arrival_time){
                     input_transition_time = pre_cell0->Output_Transition_Time;
                     cell->Arrival_Time = pre_cell0_arrival_time;
@@ -473,17 +519,17 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
                 }
             }
             // 0 1
-            else if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 1){
+            else if(input0 == LOW && input1 == HIGH){
                 input_transition_time = pre_cell0->Output_Transition_Time;
-                cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
+                cell->Arrival_Time = pre_cell0_arrival_time;
             }
             // 1 0
-            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 0){
+            else if(input0 == HIGH && input1 == LOW){
                 input_transition_time = pre_cell1->Output_Transition_Time;
-                cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
+                cell->Arrival_Time = pre_cell1_arrival_time;
             }
             // 1 1
-            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 1){
+            else if(input0 == HIGH && input1 == HIGH){
                 if(pre_cell0_arrival_time > pre_cell1_arrival_time){
                     input_transition_time = pre_cell0->Output_Transition_Time;
                     cell->Arrival_Time = pre_cell0_arrival_time;
@@ -560,7 +606,8 @@ double STA::Table_Look_Up(Cell *cell, const string &Table_Name){
 
 void STA::Calculate_Cell_Delay(){
     Cell_Topological_Sort();
-    ofstream fout(string(STUDENT_ID) + "_" + Design_Name + "_gate_info.txt");
+    ofstream fout_gate_info(string(STUDENT_ID) + "_" + Design_Name + "_gate_info.txt");
+    ofstream fout_gate_power(string(STUDENT_ID) + "_" + Design_Name + "_gate_power.txt");
     auto cell_cmp = [](const Cell *c1, const Cell *c2){
         return c1->Instance_Number < c2->Instance_Number;
     };
@@ -572,45 +619,46 @@ void STA::Calculate_Cell_Delay(){
 
         // Set init pattern
         for(const auto &pair : Patterns[i]){
-            cout << pair.first << " " << pair.second << endl;
             Nets[pair.first]->Logic_Value = pair.second;
         }
 
         for(const auto &cell : Cells_In_Topological_Order){
-            cout << cell->Name << endl;
             if(cell->Type == NOR2X1){
                 assert(cell->Input_Nets.size() == 2);
                 assert(cell->Input_Nets[0]->Logic_Value != UNSET);
                 assert(cell->Input_Nets[1]->Logic_Value != UNSET);
                 cell->Output_Net->Logic_Value = !((bool)cell->Input_Nets[0]->Logic_Value || (bool)cell->Input_Nets[1]->Logic_Value);
-                cout << cell->Output_Net->Logic_Value << endl;
             }
             else if(cell->Type == INVX1){
                 assert(cell->Input_Nets.size() == 1);
                 assert(cell->Input_Nets[0]->Logic_Value != UNSET);
                 cell->Output_Net->Logic_Value = !(bool)cell->Input_Nets[0]->Logic_Value;
-                cout << cell->Output_Net->Logic_Value << endl;
             }
             else if(cell->Type == NANDX1){
                 assert(cell->Input_Nets.size() == 2);
                 assert(cell->Input_Nets[0]->Logic_Value != UNSET);
                 assert(cell->Input_Nets[1]->Logic_Value != UNSET);
                 cell->Output_Net->Logic_Value = !((bool)cell->Input_Nets[0]->Logic_Value && (bool)cell->Input_Nets[1]->Logic_Value);
-                cout << cell->Output_Net->Logic_Value << endl;
             }
             else abort();
             Set_Cell_Input_Transition_Time(cell);
-            if(cell->Output_Net->Logic_Value == 0){
+            if(cell->Output_Net->Logic_Value == LOW){
                 double cell_falling_time = Table_Look_Up(cell, "cell_fall");
                 double output_falling_time = Table_Look_Up(cell, "fall_transition");
+                double cell_falling_internal_power = Table_Look_Up(cell, "fall_power");
                 cell->Propagation_Delay = cell_falling_time;
                 cell->Output_Transition_Time = output_falling_time;
+                cell->Internal_Power = cell_falling_internal_power;
+                cell->Switching_Power = 0.5 * cell->Output_Loading * VDD * VDD;
             }
-            else if(cell->Output_Net->Logic_Value == 1){
+            else if(cell->Output_Net->Logic_Value == HIGH){
                 double cell_rising_time = Table_Look_Up(cell, "cell_rise");
                 double output_rising_time = Table_Look_Up(cell, "rise_transition");
+                double cell_rising_internal_power = Table_Look_Up(cell, "rise_power");
                 cell->Propagation_Delay = cell_rising_time;
                 cell->Output_Transition_Time = output_rising_time;
+                cell->Internal_Power = cell_rising_internal_power;
+                cell->Switching_Power = 0.5 * cell->Output_Loading * VDD * VDD;
             }
             else abort();
         }
@@ -619,11 +667,20 @@ void STA::Calculate_Cell_Delay(){
             Sorted_Cells.emplace_back(cell.second);
         }
         sort(Sorted_Cells.begin(), Sorted_Cells.end(), cell_cmp);
+
+        // Output Gate Info
         for(const auto &cell: Sorted_Cells){
-            fout << cell->Name << " " << cell->Output_Net->Logic_Value << " " << fixed << setprecision(6) << cell->Propagation_Delay << " " << cell->Output_Transition_Time << endl;
+            fout_gate_info << cell->Name << " " << cell->Output_Net->Logic_Value << " " << fixed << setprecision(6) << cell->Propagation_Delay << " " << cell->Output_Transition_Time << endl;
         }
-        fout << endl;
+        fout_gate_info << endl;
+
+        // Output Power
+        for(const auto &cell: Sorted_Cells){
+            fout_gate_power << cell->Name <<  fixed << setprecision(6) << " " << cell->Internal_Power << " " << cell->Switching_Power <<endl;
+        }
+        fout_gate_power << endl;
 
     }
-    fout.close();
+    fout_gate_info.close();
+    fout_gate_power.close();
 }
