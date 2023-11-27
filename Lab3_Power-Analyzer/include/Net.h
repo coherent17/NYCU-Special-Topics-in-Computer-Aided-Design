@@ -3,6 +3,7 @@
 
 #include <bits/stdc++.h>
 #include "Cell.h"
+#include "Util.h"
 using namespace std;
 
 class Cell;
@@ -13,6 +14,7 @@ class Net{
         Net_Type Type;
         pair<string, Cell *> Input_Cells;
         vector<pair<string, Cell *>> Output_Cells;
+        int Logic_Value;
 
     public:
         // Constructor & Destructor

@@ -8,7 +8,7 @@ using namespace std;
 #define LUT_COL_SIZE 7
 #define STUDENT_ID "0811562"
 #define PRIMARY_OUTPUT_LOADING 0.03
-#define WIRE_DELAY 0.005
+#define UNSET -1
 
 enum Cell_Type{
     NOR2X1,
@@ -42,5 +42,8 @@ const regex Net_Type_Pattern("(input)|(output)|(wire)");
 const regex Cell_Type_Pattern("(NOR2X1)|(NANDX1)|(INVX1)");
 const regex Word_Pattern("\\w+");
 const regex Number_Pattern("\\d+");
+
+// The regular expression used for parsing Pattern
+const regex Comma_Regex(",");
 
 #endif

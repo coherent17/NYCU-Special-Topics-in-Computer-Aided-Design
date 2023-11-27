@@ -3,7 +3,8 @@
 // Constructor & Destructor
 Net::Net(string Name, Net_Type Type):
     Name(Name),
-    Type(Type)
+    Type(Type),
+    Logic_Value(UNSET)
 {
     ;
 }

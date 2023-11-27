@@ -1,7 +1,7 @@
 # ompiler & Linker settings
 CC = g++
-CFLAGS = -g -Wall -DNDEBUG -O3 -std=c++11 -I./include
-
+CFLAGS = -g -Wall -O3 -std=c++11 -I./include
+#CFLAGS = -g -Wall -DNDEBUG -O3 -std=c++11 -I./include
 # Valgrind for memory issue
 CHECKCC = valgrind
 CHECKFLAGS = -s --show-leak-kinds=all --track-origins=yes 
@@ -33,14 +33,17 @@ check:
 c17:
 	./$(TARGET) Test_Case/c17.v Test_Case/c17.pat Test_Case/test_lib.lib
 	diff -w 0811562_c17_load.txt Test_Case/golden/golden_c17_load.txt
+	diff -w 0811562_c17_gate_info.txt Test_Case/golden/golden_c17_gate_info.txt
 
 c432:
 	./$(TARGET) Test_Case/c432.v Test_Case/c432.pat Test_Case/test_lib.lib
 	diff -w 0811562_c432_load.txt Test_Case/golden/golden_c432_load.txt
+	diff -w 0811562_c432_gate_info.txt Test_Case/golden/golden_c432_gate_info.txt
 
 example:
 	./$(TARGET) Test_Case/example.v Test_Case/example.pat Test_Case/test_lib.lib
 	diff -w 0811562_example_load.txt Test_Case/golden/golden_example_load.txt
+	diff -w 0811562_example_gate_info.txt Test_Case/golden/golden_example_gate_info.txt
 
 clean:
-	rm -rf $(OBJDIR) $(TARGET) *load.txt
+	rm -rf $(OBJDIR) $(TARGET) *load.txt *gate_info.txt

@@ -18,6 +18,9 @@ class Cell{
         size_t In_Degree;
         double Output_Loading;
         double Input_Transition_Time;
+        double Output_Transition_Time;
+        double Propagation_Delay;
+        double Arrival_Time;
 
     public:
         // Constructor & Destructor

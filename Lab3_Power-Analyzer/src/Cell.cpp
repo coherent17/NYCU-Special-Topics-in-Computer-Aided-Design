@@ -6,7 +6,10 @@ Cell::Cell(string Name, Cell_Type Type):
     Type(Type),
     In_Degree(0),
     Output_Loading(0),
-    Input_Transition_Time(0)
+    Input_Transition_Time(0),
+    Output_Transition_Time(0),
+    Propagation_Delay(0),
+    Arrival_Time(0)
 {
     smatch match;
     regex_search(Name, match, Number_Pattern);
@@ -37,5 +40,8 @@ ostream &operator<<(ostream &out, const Cell &cell) {
     }
     out << "\tOutput Loading: " << fixed << setprecision(6) << cell.Output_Loading << endl;
     out << "\tInput Transition Time: " << fixed << setprecision(6) << cell.Input_Transition_Time << endl;
+    out << "\tOutput Transition Time: " << fixed << setprecision(6) << cell.Output_Transition_Time << endl;
+    out << "\tArrival Time: " << fixed << setprecision(6) << cell.Arrival_Time << endl;
+    out << "\tPropagation Delay: " << fixed << setprecision(6) << cell.Propagation_Delay << endl;
     return out;
 }
