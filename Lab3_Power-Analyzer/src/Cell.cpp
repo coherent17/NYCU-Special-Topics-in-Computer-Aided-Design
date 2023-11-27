@@ -11,7 +11,10 @@ Cell::Cell(string Name, Cell_Type Type):
     Propagation_Delay(0),
     Arrival_Time(0),
     Internal_Power(0),
-    Switching_Power(0)
+    Switching_Power(0),
+    Last_Logic_Value(LOW),
+    Positive_Toggle(0),
+    Negative_Toggle(0)
 {
     smatch match;
     regex_search(Name, match, Number_Pattern);

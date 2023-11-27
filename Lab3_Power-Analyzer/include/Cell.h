@@ -23,6 +23,9 @@ class Cell{
         double Arrival_Time;
         double Internal_Power;
         double Switching_Power;
+        int Last_Logic_Value;
+        int Positive_Toggle;
+        int Negative_Toggle;
 
     public:
         // Constructor & Destructor

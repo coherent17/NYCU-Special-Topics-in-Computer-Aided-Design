@@ -563,7 +563,7 @@ double STA::Table_Interpolation(double C_req, double S_req, double C1, double C2
     double A = P0 + ((P2 - P0) / (S2 - S1)) * (S_req - S1);
     double B = P3 + ((P1 - P3) / (S2 - S1)) * (S_req - S1);
     double P = A + ((B - A) / (C2 - C1)) * (C_req - C1);
-    return P;
+    return (P >= 0) ? P : 0;
 }
 
 double STA::Table_Look_Up(Cell *cell, const string &Table_Name){
@@ -608,10 +608,13 @@ void STA::Calculate_Cell_Delay(){
     Cell_Topological_Sort();
     ofstream fout_gate_info(string(STUDENT_ID) + "_" + Design_Name + "_gate_info.txt");
     ofstream fout_gate_power(string(STUDENT_ID) + "_" + Design_Name + "_gate_power.txt");
+    ofstream fout_coverage(string(STUDENT_ID) + "_" + Design_Name + "_coverage.txt");
     auto cell_cmp = [](const Cell *c1, const Cell *c2){
         return c1->Instance_Number < c2->Instance_Number;
     };
     for(size_t i = 0; i < Patterns.size(); i++){
+        double total_power = 0;
+
         // Reset all net logic value
         for(const auto &pair : Nets){
             pair.second->Logic_Value = UNSET;
@@ -623,6 +626,9 @@ void STA::Calculate_Cell_Delay(){
         }
 
         for(const auto &cell : Cells_In_Topological_Order){
+            bool rise = false;
+            bool fall = false;
+
             if(cell->Type == NOR2X1){
                 assert(cell->Input_Nets.size() == 2);
                 assert(cell->Input_Nets[0]->Logic_Value != UNSET);
@@ -641,6 +647,18 @@ void STA::Calculate_Cell_Delay(){
                 cell->Output_Net->Logic_Value = !((bool)cell->Input_Nets[0]->Logic_Value && (bool)cell->Input_Nets[1]->Logic_Value);
             }
             else abort();
+
+            if(cell->Last_Logic_Value == LOW && cell->Output_Net->Logic_Value == HIGH){
+                rise = true;
+                cell->Last_Logic_Value = HIGH;
+                cell->Positive_Toggle++;
+            }
+            else if(cell->Last_Logic_Value == HIGH && cell->Output_Net->Logic_Value == LOW){
+                fall = true;
+                cell->Last_Logic_Value = LOW;
+                cell->Negative_Toggle++;
+            }
+
             Set_Cell_Input_Transition_Time(cell);
             if(cell->Output_Net->Logic_Value == LOW){
                 double cell_falling_time = Table_Look_Up(cell, "cell_fall");
@@ -661,6 +679,8 @@ void STA::Calculate_Cell_Delay(){
                 cell->Switching_Power = 0.5 * cell->Output_Loading * VDD * VDD;
             }
             else abort();
+            total_power += cell->Internal_Power;
+            if(rise || fall) total_power += cell->Switching_Power;
         }
         vector<Cell *> Sorted_Cells;
         for(const auto &cell : Cells){
@@ -680,7 +700,17 @@ void STA::Calculate_Cell_Delay(){
         }
         fout_gate_power << endl;
 
+        // Output Coverage
+        int total_toggle_count = 0;
+        for(const auto &cell: Sorted_Cells){
+            if(cell->Positive_Toggle >= 20) total_toggle_count += 20;
+            else total_toggle_count += cell->Positive_Toggle;
+            if(cell->Negative_Toggle >= 20) total_toggle_count += 20;
+            else total_toggle_count += cell->Negative_Toggle;
+        }
+        fout_coverage << i + 1 << fixed << setprecision(6) <<  " " << total_power << " " << setprecision(2) << double(total_toggle_count) / double(40 * Num_Cells) * 100.0 << "%" << endl << endl;
     }
     fout_gate_info.close();
     fout_gate_power.close();
+    fout_coverage.close();
 }
