@@ -51,5 +51,8 @@ example:
 	diff -w 0811562_example_gate_power.txt Test_Case/golden/golden_example_gate_power.txt
 	diff -w 0811562_example_coverage.txt Test_Case/golden/golden_example_coverage.txt
 
+c54321:
+	time ./$(TARGET) Test_Case/c54321.v Test_Case/c54321.pat Test_Case/test_lib.lib
+
 clean:
 	rm -rf $(OBJDIR) $(TARGET) *load.txt *gate_info.txt *power.txt *coverage.txt
