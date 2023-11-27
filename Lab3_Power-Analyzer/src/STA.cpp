@@ -333,36 +333,46 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             cell->Arrival_Time = 0;
         }
         else if(cell->Input_Nets[0]->Type == input && cell->Input_Nets[1]->Type != input){
-            if(cell->Input_Nets[0]->Logic_Value == 1){
+            if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 0){
+                Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
+                input_transition_time = pre_cell1->Output_Transition_Time;
+                cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
+            }
+            else if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 1){
+                Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
+                input_transition_time = pre_cell1->Output_Transition_Time;
+                cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
+            }
+            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 0){
                 input_transition_time = 0;
                 cell->Arrival_Time = 0;
             }
-            else if(cell->Input_Nets[1]->Logic_Value == 1){
-                Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
-                input_transition_time = pre_cell1->Output_Transition_Time;
-                cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
+            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 1){
+                input_transition_time = 0;
+                cell->Arrival_Time = 0;
             }
-            else{
-                Cell *pre_cell1 = cell->Input_Nets[1]->Input_Cells.second;
-                input_transition_time = pre_cell1->Output_Transition_Time;
-                cell->Arrival_Time = pre_cell1->Arrival_Time + pre_cell1->Propagation_Delay;
-            }
+            else abort();
         }
         else if(cell->Input_Nets[0]->Type != input && cell->Input_Nets[1]->Type == input){
-            if(cell->Input_Nets[1]->Logic_Value == 1){
+            if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 0){
+                Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
+                input_transition_time = pre_cell0->Output_Transition_Time;
+                cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
+            }
+            else if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 1){
                 input_transition_time = 0;
                 cell->Arrival_Time = 0;
             }
-            else if(cell->Input_Nets[0]->Logic_Value == 1){
+            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 0){
                 Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
                 input_transition_time = pre_cell0->Output_Transition_Time;
                 cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             }
-            else{
-                Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
-                input_transition_time = pre_cell0->Output_Transition_Time;
-                cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
+            else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 1){
+                input_transition_time = 0;
+                cell->Arrival_Time = 0;
             }
+            else abort();
         }
         else{
             Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
@@ -389,8 +399,8 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             }
             // 1 0
             else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 0){
-                Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
                 input_transition_time = pre_cell0->Output_Transition_Time;
+                cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             }
             // 1 1
             else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 1){
@@ -464,8 +474,8 @@ void STA::Set_Cell_Input_Transition_Time(Cell *cell){
             }
             // 0 1
             else if(cell->Input_Nets[0]->Logic_Value == 0 && cell->Input_Nets[1]->Logic_Value == 1){
-                Cell *pre_cell0 = cell->Input_Nets[0]->Input_Cells.second;
                 input_transition_time = pre_cell0->Output_Transition_Time;
+                cell->Arrival_Time = pre_cell0->Arrival_Time + pre_cell0->Propagation_Delay;
             }
             // 1 0
             else if(cell->Input_Nets[0]->Logic_Value == 1 && cell->Input_Nets[1]->Logic_Value == 0){
