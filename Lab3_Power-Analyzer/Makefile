@@ -53,6 +53,10 @@ example:
 
 c54321:
 	time ./$(TARGET) Test_Case/c54321.v Test_Case/c54321.pat Test_Case/test_lib.lib
+	diff -w 0811562_c54321_load.txt Test_Case/golden/109511272_c54321_load.txt
+	diff -w 0811562_c54321_gate_info.txt Test_Case/golden/109511272_c54321_gate_info.txt
+	diff -w 0811562_c54321_gate_power.txt Test_Case/golden/109511272_c54321_gate_power.txt
+	diff -w 0811562_c54321_coverage.txt Test_Case/golden/109511272_c54321_coverage.txt
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET) *load.txt *gate_info.txt *power.txt *coverage.txt
