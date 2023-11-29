@@ -1,7 +1,7 @@
 # ompiler & Linker settings
 CC = g++
-CFLAGS = -g -Wall -O3 -std=c++11 -I./include
-#CFLAGS = -g -Wall -DNDEBUG -O3 -std=c++11 -I./include
+CFLAGS = -g -Wall -DNDEBUG -O3 -std=c++11 -I./include
+
 # Valgrind for memory issue
 CHECKCC = valgrind
 CHECKFLAGS = -s --show-leak-kinds=all --track-origins=yes 
@@ -57,6 +57,9 @@ c54321:
 	diff -w 0811562_c54321_gate_info.txt Test_Case/golden/109511272_c54321_gate_info.txt
 	diff -w 0811562_c54321_gate_power.txt Test_Case/golden/109511272_c54321_gate_power.txt
 	diff -w 0811562_c54321_coverage.txt Test_Case/golden/109511272_c54321_coverage.txt
+
+c123456:
+	time ./$(TARGET) Test_Case/c123456.v Test_Case/c123456.pat Test_Case/test_lib.lib
 
 clean:
 	rm -rf $(OBJDIR) $(TARGET) *load.txt *gate_info.txt *power.txt *coverage.txt
