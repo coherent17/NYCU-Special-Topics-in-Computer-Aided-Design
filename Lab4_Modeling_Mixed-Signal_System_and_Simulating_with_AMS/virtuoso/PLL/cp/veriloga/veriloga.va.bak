@@ -1,0 +1,18 @@
+// VerilogA for PLL, cp, veriloga
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module cp(siginc, sigdec, vout, vsrc);
+
+
+input siginc, sigdec;
+inout vsrc;
+output vout;
+
+electrical siginc, sigdec, vout, vsrc;
+electrical vsrc1, vsrc2;
+
+parameter real iamp=1
+
+endmodule

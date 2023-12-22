@@ -1,0 +1,3 @@
+source /usr/cad/cadence/CIC/incisiv.cshrc
+source /usr/cad/cadence/CIC/mmsim.cshrc
+source /usr/cad/cadence/CIC/ic_06.17.709.cshrc

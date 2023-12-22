@@ -1,0 +1,104 @@
+//Verilog HDL for "ADC", "encoder" "functional"
+
+
+module encoder (in15, in14, in13, in12, in11, in10, in9, in8, in7, in6, in5, in4, in3, in2, in1, in0, B3, B2, B1, B0);
+input in15, in14, in13, in12, in11, in10, in9, in8, in7, in6, in5, in4, in3, in2, in1, in0;
+output reg B3, B2, B1, B0;
+always@(in15, in14, in13, in12, in11, in10, in9, in8, in7, in6, in5, in4, in3, in2, in1, in0) begin
+	B3<=1'b0;
+	B2<=1'b0;
+	B1<=1'b0;
+	B0<=1'b0;
+
+	if(in15)begin
+		B3<=1'b1;
+		B2<=1'b1;
+		B1<=1'b1;
+		B0<=1'b1;
+	end
+	else if(in14)begin
+		B3<=1'b1;
+		B2<=1'b1;
+		B1<=1'b1;
+		B0<=1'b0;
+	end
+	else if(in13)begin
+		B3<=1'b1;
+		B2<=1'b1;
+		B1<=1'b0;
+		B0<=1'b1;
+	end
+	else if(in12)begin
+		B3<=1'b1;
+		B2<=1'b1;
+		B1<=1'b0;
+		B0<=1'b0;
+	end
+	else if(in11)begin
+		B3<=1'b1;
+		B2<=1'b0;
+		B1<=1'b1;
+		B0<=1'b1;
+	end
+	else if(in10)begin
+		B3<=1'b1;
+		B2<=1'b0;
+		B1<=1'b1;
+		B0<=1'b0;
+	end
+	else if(in9)begin
+		B3<=1'b1;
+		B2<=1'b0;
+		B1<=1'b0;
+		B0<=1'b1;
+	end
+	else if(in8)begin
+		B3<=1'b1;
+		B2<=1'b0;
+		B1<=1'b0;
+		B0<=1'b0;
+	end
+	else if(in7)begin
+		B3<=1'b0;
+		B2<=1'b1;
+		B1<=1'b1;
+		B0<=1'b1;
+	end
+	else if(in6)begin
+		B3<=1'b0;
+		B2<=1'b1;
+		B1<=1'b1;
+		B0<=1'b0;
+	end
+	else if(in5)begin
+		B3<=1'b0;
+		B2<=1'b1;
+		B1<=1'b0;
+		B0<=1'b1;
+	end
+	else if(in4)begin
+		B3<=1'b0;
+		B2<=1'b1;
+		B1<=1'b0;
+		B0<=1'b0;
+	end
+	else if(in3)begin
+		B3<=1'b0;
+		B2<=1'b0;
+		B1<=1'b1;
+		B0<=1'b1;
+	end
+	else if(in2)begin
+		B3<=1'b0;
+		B2<=1'b0;
+		B1<=1'b1;
+		B0<=1'b0;
+	end
+	else if(in1)begin
+		B3<=1'b0;
+		B2<=1'b0;
+		B1<=1'b0;
+		B0<=1'b1;
+	end
+end
+endmodule

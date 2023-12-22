@@ -1,0 +1,4 @@
+SOFTINCLUDE /home/EDATOOLS/cadence/IC/IC_06.17.709/share/cdssetup/cds.lib
+DEFINE PLL /edahome/course/2023CAD/2023CAD009/Lab4_Modeling_Mixed-Signal_System_and_Simulating_with_AMS/PLL
+DEFINE PLL_MIX /edahome/course/2023CAD/2023CAD009/Lab4_Modeling_Mixed-Signal_System_and_Simulating_with_AMS/PLL_MIX
+DEFINE ADC /edahome/course/2023CAD/2023CAD009/Lab4_Modeling_Mixed-Signal_System_and_Simulating_with_AMS/ADC

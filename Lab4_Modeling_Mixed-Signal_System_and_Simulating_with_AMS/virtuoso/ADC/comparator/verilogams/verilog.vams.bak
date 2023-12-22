@@ -1,0 +1,20 @@
+//Verilog-AMS HDL for "ADC", "comparator" "verilogams"
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module comparator (v_positive, v_negative, vout);
+
+input v_positive, v_negative;
+ddiscrete vout;
+output reg vout;
+electrical v_positive, v_negative, vout_v;
+
+analog begin
+	V(vout_v) <+ V(v_positive) - V(v_negative)
+end
+
+always begin @(cross(V(vout_v) - 0.5, +1)) vout = 1'b1; end
+always begin @(cross(V(vout_v) - 0.5, -1)) vout = 1'b0; end
+
+endmodule
